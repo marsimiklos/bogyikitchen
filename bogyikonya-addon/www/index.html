@@ -62,12 +62,18 @@
 
 
 <script type="module">
-    // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK ---
+    // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK (JAVÍTOTT INGRESS KEZELÉS) ---
     
-    // Az API végpont alap URL-je. Ezt kell illeszteni a futó lokális szerverhez.
-    // Ha a Home Assistant Flask app injektálta a HASS_API_BASE_PATH változót, azt használjuk.
-    // Az url a flask code-ban így épül fel: INGRESS_ENTRY_POINT + api + / + collection_name
-    const LOCAL_API_BASE = window.HASS_API_BASE_PATH ? `${window.HASS_API_BASE_PATH}api` : '/api'; 
+    // Az Ingress Base Path lekérése, vagy alapértelmezettként '/' használata.
+    // Pl: /api/hassio_addons/bogyikonya/ingress/
+    const INGRESS_BASE_PATH = window.HASS_API_BASE_PATH || '/';
+
+    // A záró perjel eltávolítása a Base Path-ból (pl. /api/hassio_addons/bogyikonya/ingress)
+    const INGRESS_PREFIX = INGRESS_BASE_PATH.replace(/\/$/, '');
+
+    // A teljes API útvonal robusztus felépítése: prefix + /api. 
+    // Pl: /api/hassio_addons/bogyikonya/ingress/api
+    const LOCAL_API_BASE = `${INGRESS_PREFIX}/api`; 
 
     let userId = 'local_user'; // A felhasználó ID a lokális módban irreleváns, de megtartva a struktúra miatt
     let isAuthReady = true; // Lokális módban azonnal kész a hitelesítés
@@ -85,7 +91,7 @@
 
 
     
-    // Segédfüggvény: API Hívások kezelése 
+    // Segéfüggvény: API Hívások kezelése 
     async function apiCall(endpoint, method = 'GET', data = null) {
         // A végpont most már tartalmazza az esetleges Ingress útvonalat is.
         const url = `${LOCAL_API_BASE}/${endpoint}`;
@@ -129,7 +135,7 @@
     const serverTimestamp = () => new Date(); 
 
 
-    // Segédfüggvény: Dátum formázása
+    // Segéfüggvény: Dátum formázása
     const formatDate = (timestamp) => {
         if (!timestamp) return 'N/A';
         // A lokális API valószínűleg ISO stringet ad vissza
@@ -881,7 +887,7 @@
     
     // --- LOKÁLIS ALKALMAZÁS INDÍTÁSA ---
     async function initLocalApp() {
-        const apiPath = window.HASS_API_BASE_PATH || LOCAL_API_BASE;
+        const apiPath = LOCAL_API_BASE; // Már a LOCAL_API_BASE tartalmazza a teljes, prefixelt útvonalat.
         document.getElementById('auth-info').textContent = `Helyi Mód (API Base: ${apiPath})`;
        
         // Adatbetöltés a helyi API-ról
