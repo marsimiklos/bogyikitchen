@@ -65,11 +65,12 @@
     // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK ---
     
     // Az API végpont alap URL-je. Ezt kell illeszteni a futó lokális szerverhez.
-    // A HASS_API_BASE_PATH változót a Python kód injektálja, ha Ingress módban fut.
+    // Ha a Home Assistant Flask app injektálta a HASS_API_BASE_PATH változót, azt használjuk.
+    // Az url a flask code-ban így épül fel: INGRESS_ENTRY_POINT + api + / + collection_name
     const LOCAL_API_BASE = window.HASS_API_BASE_PATH ? `${window.HASS_API_BASE_PATH}api` : '/api'; 
 
-    let userId = 'local_user'; 
-    let isAuthReady = true; 
+    let userId = 'local_user'; // A felhasználó ID a lokális módban irreleváns, de megtartva a struktúra miatt
+    let isAuthReady = true; // Lokális módban azonnal kész a hitelesítés
     let currentTab = 'preparedMeals';
 
 
@@ -79,7 +80,7 @@
         pantry: [],
         shoppingList: [],
         recipes: [],
-        pantryNames: new Set(), 
+        pantryNames: new Set(), // Gyors kereséshez, kisbetűsítve
     };
 
 
@@ -104,10 +105,11 @@
             const response = await fetch(url, options);
             
             if (!response.ok) {
-                // Itt lép fel a KRITIKUS HIBA (404), ha a Python útválasztás hibás!
+                // A KRITIKUS HIBA figyelése, különösen a 404 (nem található) miatt.
                 throw new Error(`API hiba: ${response.status} ${response.statusText} a(z) ${url} címen. Ellenőrizd a lokális szervert!`);
             }
             
+            // A 204 No Content válasz a DELETE híváskor szokásos, ilyenkor nincs JSON válasz
             if (response.status === 204) return null; 
             
             return await response.json();
@@ -130,6 +132,7 @@
     // Segédfüggvény: Dátum formázása
     const formatDate = (timestamp) => {
         if (!timestamp) return 'N/A';
+        // A lokális API valószínűleg ISO stringet ad vissza
         const date = timestamp instanceof Date ? timestamp : new Date(timestamp); 
         return date.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' });
     };
@@ -861,4 +864,39 @@
             .toLowerCase()
             .split(',')
             .map(t => t.trim())
-            .filter
+            .filter(t => t);
+
+
+        window.addRecipe(name, ingredients, optionalIngredients, instructions, tags);
+        window.closeModal('recipe-modal');
+    };
+
+
+    // --- Általános Modal kezelő (Globális) ---
+    window.closeModal = (id) => {
+        const modal = document.getElementById(id);
+        if (modal) modal.remove();
+        document.getElementById('modal-container').innerHTML = ''; // Biztos, ami biztos
+    };
+    
+    // --- LOKÁLIS ALKALMAZÁS INDÍTÁSA ---
+    async function initLocalApp() {
+        const apiPath = window.HASS_API_BASE_PATH || LOCAL_API_BASE;
+        document.getElementById('auth-info').textContent = `Helyi Mód (API Base: ${apiPath})`;
+       
+        // Adatbetöltés a helyi API-ról
+        await setupLocalDataLoad();
+       
+        // Első tab megjelenítése
+        switchTab(currentTab);
+    }
+    
+    // Alkalmazás indítása a betöltés után
+    window.addEventListener('load', () => {
+        initLocalApp();
+    });
+
+
+</script>
+</body>
+</html>
