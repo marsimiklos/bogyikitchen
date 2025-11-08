@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohakonyha - Konyhai Nyilvántartó (Lokális API)</title>
+    <title>Mohakonyha - Konyhai Nyilvántartó (Lokális HA API)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Egyedi mohazöld paletta definiálása */
@@ -64,8 +64,10 @@
 <script type="module">
     // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK ---
     
-    // Az API végpont alap URL-je. Ezt kell illeszteni a futó lokális szerverhez (pl. json-server /api)
-    const LOCAL_API_BASE = '/api'; 
+    // Az API végpont alap URL-je. Ezt kell illeszteni a futó lokális szerverhez.
+    // Ha a Home Assistant Flask app injektálta a HASS_API_BASE_PATH változót, azt használjuk.
+    // Az url a flask code-ban így épül fel: INGRESS_ENTRY_POINT + api + / + collection_name
+    const LOCAL_API_BASE = window.HASS_API_BASE_PATH ? `${window.HASS_API_BASE_PATH}api` : '/api'; 
 
     let userId = 'local_user'; // A felhasználó ID a lokális módban irreleváns, de megtartva a struktúra miatt
     let isAuthReady = true; // Lokális módban azonnal kész a hitelesítés
@@ -82,11 +84,10 @@
     };
 
 
-    // FIREBASE INICIALIZÁLÁS TÖRÖLVE! Az alkalmazás azonnal a lokális módban indul.
     
-    
-    // Segédfüggvény: API Hívások kezelése (ez helyettesíti a Firebase addDoc, deleteDoc, query hívásokat)
+    // Segédfüggvény: API Hívások kezelése 
     async function apiCall(endpoint, method = 'GET', data = null) {
+        // A végpont most már tartalmazza az esetleges Ingress útvonalat is.
         const url = `${LOCAL_API_BASE}/${endpoint}`;
         const options = {
             method: method,
@@ -104,7 +105,7 @@
             const response = await fetch(url, options);
             
             if (!response.ok) {
-                // A korábbi KRITIKUS HIBA itt lépett fel: a helyi API nem található (404)
+                // A KRITIKUS HIBA figyelése, különösen a 404 (nem található) miatt.
                 throw new Error(`API hiba: ${response.status} ${response.statusText} a(z) ${url} címen. Ellenőrizd a lokális szervert!`);
             }
             
@@ -172,7 +173,7 @@
         try {
             if (tabToRefresh === 'preparedMeals' || !tabToRefresh) {
                 state.preparedMeals = await apiCall(getLocalEndpoint('preparedMeals'));
-                // Rendezés a frissítés után (az API objektumokat ad vissza id-vel)
+                // Rendezés a frissítés után
                 if (currentTab === 'preparedMeals') renderPreparedMeals();
             }
 
@@ -339,7 +340,6 @@
     }
     
     // FIREBASE DEMO ADATOK BLOKKJA TÖRÖLVE.
-    // A lokális API-nak kell biztosítania a kezdeti adatokat.
 
 
     // --- UI/RENDER FÜGGVÉNYEK ---
@@ -580,9 +580,8 @@
        
         if (shoppingItemId && prefilledName) {
             // Bevásárlólistáról jött
-            // A showAlertOnSuccess paraméter már nincs használatban, mert manuálisan frissítünk és hívunk egy értesítést.
             await window.addPantryItem(name, expiry, restock, false);
-            await window.deleteShoppingListItem(shoppingItemId, false); // Kétszer frissítünk, ami nem ideális, de funkcionálisan helyes
+            await window.deleteShoppingListItem(shoppingItemId, false); 
            
             showAlert(`Sikeresen megvásárolva és hozzáadva a kamrához!`);
         } else {
@@ -882,7 +881,8 @@
     
     // --- LOKÁLIS ALKALMAZÁS INDÍTÁSA ---
     async function initLocalApp() {
-        document.getElementById('auth-info').textContent = `Helyi Mód (LOCAL_API_BASE: ${LOCAL_API_BASE})`;
+        const apiPath = window.HASS_API_BASE_PATH || LOCAL_API_BASE;
+        document.getElementById('auth-info').textContent = `Helyi Mód (API Base: ${apiPath})`;
        
         // Adatbetöltés a helyi API-ról
         await setupLocalDataLoad();
