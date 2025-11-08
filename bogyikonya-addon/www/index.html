@@ -75,20 +75,16 @@
     // Injektált HASS_API_BASE_PATH vagy location.pathname fallback, mindig rögzített formátum
 
     // API base path mindig egy perjellel kapcsolva
-    let ingressBasePath = '/'; // Kezdőérték
+    let ingressPath = window.location.pathname; 
 
-    // A kényszerített útvonalat a böngésző URL-jéből számítjuk ki (Még az iframe-ben is!)
-    let currentPath = window.location.pathname; 
-
-    const ingressIndex = currentPath.indexOf('/ingress');
-
-    if (ingressIndex !== -1) {
-        // Eredmény: /b9735126_bogyikonya/ingress/
-        ingressBasePath = currentPath.substring(0, ingressIndex + '/ingress'.length) + '/';
+    // Biztosítjuk, hogy az útvonal végződjön '/' jellel.
+    if (!ingressPath.endsWith('/')) {
+        ingressPath += '/';
     }
 
     // A VÉGLEGES API BASE ÚTVONAL
-    const LOCAL_API_BASE = `${ingressBasePath}api`;
+    // Eredmény: /api/hassio_ingress/HvNEKyTGjEBQc9NXgNYFB0c99VkfetKbTwXRKIvN1ow/api
+    const LOCAL_API_BASE = `${ingressPath}api`;
 
 
 
