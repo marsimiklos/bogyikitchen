@@ -643,11 +643,17 @@
 
     // --- MODAL KEZELŐ FÜGGVÉNYEK ---
 
-    window.closeModal = (id) => {
-        const modal = document.getElementById(id);
-        if (modal) modal.remove();
-        document.getElementById('modal-container').innerHTML = '';
-    };
+    window.closeModal = (id) => {
+        const modal = document.getElementById(id);
+        const container = document.getElementById('modal-container'); // Referencia a konténerre
+    
+        if (modal) modal.remove();
+    
+        container.innerHTML = ''; // Biztos, ami biztos
+
+        // ÚJ LÉPÉS: Visszaadjuk a hidden osztályt
+        container.classList.add('hidden'); 
+    };
     
     // Általános modal alap
     function createModal(id, title, bodyHtml, footerHtml = '', sizeClass = 'max-w-xl') {
