@@ -3,36 +3,35 @@ import os
 import time
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request, send_from_directory
-import requests
+import urllib.request
 
 app = Flask(__name__)
 DATA_FILE = "/data/app_data.json"
 
-# --- INGRESS BEÁLLÍTÁS (Supervisor API) ---
+# --- INGRESS BEÁLLÍTÁS (Supervisor API, urllib) ---
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
 ADDON_SLUG = os.environ.get("HASSIO_ADDON") or "bogyikonya"
 
 def get_ingress_url():
-    """Lekérdezi az addon Ingress URL-jét a Supervisor API-n keresztül."""
+    """Lekérdezi az addon Ingress URL-jét a Supervisor API-n keresztül urllib-rel."""
     if not SUPERVISOR_TOKEN:
         print("[DEBUG] Supervisor token nincs beállítva, fallback /")
         return "/"
 
     url = f"http://supervisor/addons/{ADDON_SLUG}/info"
-    headers = {
+    req = urllib.request.Request(url, headers={
         "Authorization": f"Bearer {SUPERVISOR_TOKEN}",
         "Content-Type": "application/json",
-    }
+    })
 
     try:
-        resp = requests.get(url, headers=headers, timeout=5)
-        resp.raise_for_status()
-        data = resp.json()
-        ingress_url = data.get("ingress_url")  # lehet None
-        if ingress_url:
-            return ingress_url if ingress_url.endswith("/") else ingress_url + "/"
-        else:
-            return "/"
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.load(resp)
+            ingress_url = data.get("ingress_url")
+            if ingress_url:
+                return ingress_url if ingress_url.endswith("/") else ingress_url + "/"
+            else:
+                return "/"
     except Exception as e:
         print(f"[DEBUG] Hiba az ingress_url lekérésekor: {e}")
         return "/"
