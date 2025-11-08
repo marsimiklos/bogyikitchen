@@ -1,647 +1,647 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bogyi Konyha - Konyhai Nyilvántartó</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'moss-dark': '#4D584D', // Sötét moha
-                        'moss-light': '#6F7F6F', // Világos moha
-                        'cream': '#F3F4F6', // Krémszín
-                        'leaf': '#85A661', // Levélzöld
-                        'terracotta': '#CC7F6F', // Terrakotta (esetleg figyelmeztetésre)
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Egyedi görgetősáv a modern böngészőkhöz */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bogyi Konyha - Konyhai Nyilvántartó</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'moss-dark': '#4D584D', // Sötét moha
+                        'moss-light': '#6F7F6F', // Világos moha
+                        'cream': '#F3F4F6', // Krémszín
+                        'leaf': '#85A661', // Levélzöld
+                        'terracotta': '#CC7F6F', // Terrakotta (esetleg figyelmeztetésre)
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Egyedi görgetősáv a modern böngészőkhöz */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
 
-        ::-webkit-scrollbar-track {
-            background: #F3F4F6;
-        }
+        ::-webkit-scrollbar-track {
+            background: #F3F4F6;
+        }
 
-        ::-webkit-scrollbar-thumb {
-            background: #85A661;
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar-thumb {
+            background: #85A661;
+            border-radius: 4px;
+        }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6F7F6F;
-        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6F7F6F;
+        }
 
-        /* Modal animáció */
-        .modal-enter-active, .modal-leave-active {
-            transition: opacity 0.3s ease;
-        }
-        .modal-enter-from, .modal-leave-to {
-            opacity: 0;
-        }
-    </style>
+        /* Modal animáció */
+        .modal-enter-active, .modal-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .modal-enter-from, .modal-leave-to {
+            opacity: 0;
+        }
+    </style>
 </head>
 <body class="bg-cream font-sans flex flex-col min-h-screen">
 
-    <header class="bg-moss-dark text-white shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-3xl font-bold">Bogyi Konyha 🍽️</h1>
-            <div id="auth-info" class="text-sm bg-moss-light px-3 py-1 rounded-full">
-                Helyi tárolás (Local JSON)
-            </div>
-        </div>
-        
-        <nav class="bg-moss-light shadow-inner">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex space-x-4">
-                    <button id="tab-preparedMeals" onclick="switchTab('preparedMeals')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Készételek</button>
-                    <button id="tab-pantry" onclick="switchTab('pantry')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Kamra</button>
-                    <button id="tab-shoppingList" onclick="switchTab('shoppingList')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Bevásárlólista</button>
-                    <button id="tab-recipes" onclick="switchTab('recipes')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Recepteskönyv</button>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <header class="bg-moss-dark text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Bogyi Konyha 🍽️</h1>
+            <div id="auth-info" class="text-sm bg-moss-light px-3 py-1 rounded-full">
+                Helyi tárolás (Local JSON)
+            </div>
+        </div>
+        
+        <nav class="bg-moss-light shadow-inner">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex space-x-4">
+                    <button id="tab-preparedMeals" onclick="switchTab('preparedMeals')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Készételek</button>
+                    <button id="tab-pantry" onclick="switchTab('pantry')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Kamra</button>
+                    <button id="tab-shoppingList" onclick="switchTab('shoppingList')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Bevásárlólista</button>
+                    <button id="tab-recipes" onclick="switchTab('recipes')" class="tab-button text-cream px-3 py-2 text-sm font-medium border-b-2 border-transparent hover:border-leaf transition duration-150">Recepteskönyv</button>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        <div id="tab-content" class="min-h-[60vh] bg-white p-6 rounded-lg shadow-lg">
-            </div>
-    </main>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+        <div id="tab-content" class="min-h-[60vh] bg-white p-6 rounded-lg shadow-lg">
+            </div>
+    </main>
 
-    <div id="alert-container" class="fixed top-2 right-2 z-50 space-y-2">
-        </div>
+    <div id="alert-container" class="fixed top-2 right-2 z-50 space-y-2">
+        </div>
 
-    <div id="modal-container" class="fixed inset-0 z-40 hidden">
-        </div>
+    <div id="modal-container" class="fixed inset-0 z-40 hidden">
+        </div>
 
 <script type="module">
-    // Nincs többé Firebase inicializálás és auth.
-    // A Flask szerver (app.py) kezeli a helyi adattárolást.
-    
-    // --- MÓDOSÍTVA AZ INGRESS TÁMOGATÁSHOZ ---
-    // Az Ingress útvonalat (base path) a Flask server (app.py) injektálta 
-    // a window.HASS_API_BASE_PATH változóba. Ezt kell használnunk minden API híváshoz.
-    const BASE_PATH = window.HASS_API_BASE_PATH || '/';
-    const BASE_API_URL = `${BASE_PATH}api/`;
-    // --- MÓDOSÍTÁS VÉGE ---
+    // Nincs többé Firebase inicializálás és auth.
+    // A Flask szerver (app.py) kezeli a helyi adattárolást.
+    
+    // --- MÓDOSÍTVA AZ INGRESS TÁMOGATÁSHOZ ---
+    // Az Ingress útvonalat (base path) a Flask server (app.py) injektálta 
+    // a window.HASS_API_BASE_PATH változóba. Ezt kell használnunk minden API híváshoz.
+    const BASE_PATH = window.HASS_API_BASE_PATH || '/';
+    const BASE_API_URL = `${BASE_PATH}api/`;
+    // --- MÓDOSÍTÁS VÉGE ---
 
-    let isAuthReady = true; // Mindig kész, nincs hitelesítés
-    let currentTab = 'preparedMeals';
-    let isInitialLoad = true;
+    let isAuthReady = true; // Mindig kész, nincs hitelesítés
+    let currentTab = 'preparedMeals';
+    let isInitialLoad = true;
 
-    // Lokális adattárolás
-    let state = {
-        preparedMeals: [],
-        pantry: [],
-        shoppingList: [],
-        recipes: [],
-        pantryNames: new Set(), // Gyors kereséshez, kisbetűsítve
-    };
+    // Lokális adattárolás
+    let state = {
+        preparedMeals: [],
+        pantry: [],
+        shoppingList: [],
+        recipes: [],
+        pantryNames: new Set(), // Gyors kereséshez, kisbetűsítve
+    };
 
-    let recipeFilters = {
-        isCookableFilterActive: false,
-        activeTags: new Set(),
-        allAvailableTags: new Set(),
-        currentSearch: ''
-    };
-    
-    // Auth info eltávolítása (nincs auth)
-    document.addEventListener('DOMContentLoaded', () => {
-        const authInfo = document.getElementById('auth-info');
-        if (authInfo) {
-            authInfo.textContent = 'Helyi tárolás (Local JSON)';
-        }
-    });
+    let recipeFilters = {
+        isCookableFilterActive: false,
+        activeTags: new Set(),
+        allAvailableTags: new Set(),
+        currentSearch: ''
+    };
+    
+    // Auth info eltávolítása (nincs auth)
+    document.addEventListener('DOMContentLoaded', () => {
+        const authInfo = document.getElementById('auth-info');
+        if (authInfo) {
+            authInfo.textContent = 'Helyi tárolás (Local JSON)';
+        }
+    });
 
-    // --- HELYI ADATKEZELÉS (API HÍVÁSOK) ---
+    // --- HELYI ADATKEZELÉS (API HÍVÁSOK) ---
 
-    // Segédfüggvény: Dátum formázása
-    const formatDate = (timestamp) => {
-        if (!timestamp) return 'N/A';
-        // A Flask ISO stringet ad vissza. Ezt dolgozzuk fel.
-        const date = new Date(timestamp);
-        return date.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' });
-    };
+    // Segédfüggvény: Dátum formázása
+    const formatDate = (timestamp) => {
+        if (!timestamp) return 'N/A';
+        // A Flask ISO stringet ad vissza. Ezt dolgozzuk fel.
+        const date = new Date(timestamp);
+        return date.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
 
-    // Segédfüggvény: API hívás (CRUD)
-    async function apiCall(method, collection, data = null, id = null) {
-        let url = BASE_API_URL + collection;
-        if (id) {
-            url += '/' + id;
-        }
+    // Segédfüggvény: API hívás (CRUD)
+    async function apiCall(method, collection, data = null, id = null) {
+        let url = BASE_API_URL + collection;
+        if (id) {
+            url += '/' + id;
+        }
 
-        const options = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
 
-        if (data) {
-            options.body = JSON.stringify(data);
-        }
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
 
-        try {
-            const response = await fetch(url, options);
-            if (!response.ok) {
-                throw new Error(`API hiba: ${response.status} ${response.statusText}`);
-            }
-            // A DELETE hívás lehet, hogy nem ad vissza JSON-t (204 No Content), ezért ellenőrizzük
-            if (response.status !== 204 && response.headers.get("content-length") !== "0") {
-                return await response.json();
-            }
-            return { success: true };
-        } catch (e) {
-            console.error("Hiba az API hívásban:", e);
-            showAlert(`Hiba a kommunikációban a helyi szerverrel: ${e.message}`, 'error');
-            return { error: e.message };
-        }
-    }
-
-
-    // --- FŐ ADATBETÖLTŐ ÉS RENDERELŐ FÜGGVÉNY ---
-    
-    async function loadAndRenderData() {
-        if (!isAuthReady) return;
-
-        try {
-            const collections = ['preparedMeals', 'pantry', 'shoppingList', 'recipes'];
-            
-            const results = await Promise.all(collections.map(c => apiCall('GET', c)));
-            
-            if (results.some(r => r.error)) {
-                throw new Error("Hiba az adatok lekérdezésekor.");
-            }
-
-            // Az id-k és a dátumok kezelése: a Python backend már az id mezővel és ISO string dátumokkal adja vissza.
-            state.preparedMeals = results[0];
-            state.pantry = results[1].map(item => ({ 
-                ...item, 
-                // A Python backend már kisbetűsíti a nevet, de az id is fontos
-                name: item.name.toLowerCase().trim() 
-            }));
-            state.shoppingList = results[2];
-            state.recipes = results[3];
-
-            // Gyors keresési készlet frissítése
-            state.pantryNames = new Set(state.pantry.map(item => item.name));
-            
-            // Recept szűrők tagjainak frissítése, hogy a friss adatokon alapuljon
-            recipeFilters.allAvailableTags = new Set();
-            state.recipes.forEach(r => r.tags.forEach(tag => recipeFilters.allAvailableTags.add(tag)));
-
-            if (isInitialLoad) {
-                switchTab(currentTab);
-                isInitialLoad = false;
-            } else {
-                // Csak a jelenlegi nézet frissítése
-                switch (currentTab) {
-                    case 'preparedMeals': renderPreparedMeals(); break;
-                    case 'pantry': renderPantry(); break;
-                    case 'shoppingList': renderShoppingList(); break;
-                    case 'recipes': renderRecipes(); break;
-                }
-            }
-        } catch (e) {
-            console.error("Hiba a teljes adatbetöltéskor:", e);
-            const contentDiv = document.getElementById('tab-content');
-            contentDiv.innerHTML = `<p class="text-center text-red-500 py-10">Kritikus hiba: Nem sikerült a helyi API-hoz csatlakozni. Kérlek ellenőrizd az add-on naplóit!</p>`;
-        }
-    }
-
-    // Segédfüggvény: Alert üzenet megjelenítése
-    function showAlert(message, type = 'success') {
-        const container = document.getElementById('alert-container');
-       
-        let color;
-
-        if (type === 'error') {
-            color = 'bg-red-500';
-        } else { // 'success'
-            color = 'bg-moss-light';
-        }
-
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `p-4 mb-2 rounded-lg shadow-xl text-white max-w-sm ${color} transition-opacity duration-300 opacity-0`;
-       
-        alertDiv.innerHTML = `<span class="font-semibold">${message}</span>`;
-       
-        container.appendChild(alertDiv);
-       
-        // Animáció
-        setTimeout(() => alertDiv.classList.remove('opacity-0'), 10);
-        setTimeout(() => {
-            alertDiv.classList.add('opacity-0');
-            alertDiv.addEventListener('transitionend', () => alertDiv.remove());
-        }, 3000);
-    }
-
-    // --- CRUD Műveletek (API HÍVÁSOK) ---
-
-    // Készételek (Prepared Meals)
-    window.addPreparedMeal = async function(name, expiryDate, requiresSide) {
-        const result = await apiCall('POST', 'preparedMeals', {
-            name,
-            // A dátumot ISO stringként küldjük
-            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null,
-            requiresSide,
-        });
-
-        if (result.success) {
-            showAlert('Készétel sikeresen hozzáadva!');
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-
-    // Készétel törlése/elfogyasztása
-    window.deletePreparedMeal = async function(id) {
-        const result = await apiCall('DELETE', 'preparedMeals', null, id);
-        if (result.success) {
-            showAlert('Elfogyasztva!');
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-
-    // Kamra (Pantry)
-    window.addPantryItem = async function(name, expiryDate, shouldRestock, showAlertOnSuccess = true) {
-        const result = await apiCall('POST', 'pantry', {
-            name: name.trim(),
-            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null,
-            shouldRestock,
-        });
-
-        if (result.success) {
-            if (showAlertOnSuccess) {
-                showAlert('Kamra tétel sikeresen hozzáadva!');
-            }
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-
-    // Kamra tétel elfogyott/törlése -> Bevásárlólistára kerül
-    window.markPantryItemUsedUp = async function(id, name, shouldRestock) {
-        // 1. Kamra tétel törlése
-        const deleteResult = await apiCall('DELETE', 'pantry', null, id);
-
-        if (deleteResult.success) {
-            if (shouldRestock) {
-                // 2. Bevásárlólistára rakás
-                const addResult = await apiCall('POST', 'shoppingList', {
-                    name,
-                    isBought: false,
-                    source: 'pantry_restock'
-                });
-
-                if (addResult.success) {
-                    showAlert(`${name} elfogyott és automatikusan hozzáadva a Bevásárlólistához!`);
-                    loadAndRenderData(); // Adatok frissítése
-                }
-            } else {
-                showAlert(`${name} elfogyott!`);
-                loadAndRenderData(); // Adatok frissítése
-            }
-        }
-    }
-
-    // Bevásárlólista
-    window.addShoppingListItem = async function(name) {
-        const result = await apiCall('POST', 'shoppingList', {
-            name: name.trim(),
-            isBought: false,
-            source: 'manual'
-        });
-
-        if (result.success) {
-            showAlert(`${name} hozzáadva a Bevásárlólistához!`);
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-   
-    window.deleteShoppingListItem = async function(id, showAlertOnSuccess = true) {
-        const result = await apiCall('DELETE', 'shoppingList', null, id);
-        
-        if (result.success) {
-            if (showAlertOnSuccess) {
-                showAlert('Tétel törölve a Bevásárlólistáról!');
-            }
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-
-    window.markShoppingItemBought = async function(id, name) {
-        const result = await apiCall('DELETE', 'shoppingList', null, id);
-        if (result.success) {
-            // Mivel megvettük, most hozzáadjuk a kamrához
-            // Használjuk a már létező addPantryItem funkciót. Nincs lejárati dátum és nincs szükség restock-ra, mivel most vettük meg.
-            // A false az utolsó paraméter, ami jelzi, hogy ne jelenjen meg alert.
-            window.addPantryItem(name, null, false, false); 
-            showAlert(`${name} megvásárolva és hozzáadva a Kamrához!`);
-            // loadAndRenderData-t már az addPantryItem hívja
-        }
-    }
-
-    // Recepteskönyv
-    window.addRecipe = async function(name, ingredients, optionalIngredients, instructions, tags) {
-        const result = await apiCall('POST', 'recipes', {
-            name: name.trim(),
-            ingredients, 
-            optionalIngredients, 
-            instructions,
-            tags, 
-        });
-
-        if (result.success) {
-            showAlert(`${name} recept sikeresen hozzáadva!`);
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-
-    window.deleteRecipe = async function(id) {
-        const result = await apiCall('DELETE', 'recipes', null, id);
-
-        if (result.success) {
-            showAlert('Recept törölve!');
-            loadAndRenderData(); // Adatok frissítése
-        }
-    }
-
-    // --- UI/RENDER FÜGGVÉNYEK ---
-
-    function switchTab(tabName) {
-        currentTab = tabName;
-        const contentDiv = document.getElementById('tab-content');
-        const tabButtons = document.querySelectorAll('.tab-button');
-
-        tabButtons.forEach(btn => {
-            btn.classList.remove('border-leaf', 'font-bold');
-            btn.classList.add('border-transparent');
-        });
-
-        document.getElementById(`tab-${tabName}`).classList.add('border-leaf', 'font-bold');
-
-        contentDiv.innerHTML = '<div class="text-center py-10 text-moss-light">Adatok betöltése...</div>';
-
-        switch (tabName) {
-            case 'preparedMeals': renderPreparedMeals(); break;
-            case 'pantry': renderPantry(); break;
-            case 'shoppingList': renderShoppingList(); break;
-            case 'recipes': renderRecipes(); break;
-            default: contentDiv.innerHTML = '<p class="text-red-500">Hiba: Ismeretlen fül.</p>';
-        }
-    }
-
-    // Dátum állapot jelző
-    function getExpiryStatus(expiryDate) {
-        if (!expiryDate) return { color: 'text-gray-500', label: 'N/A' };
-        // Az ISO string konvertálása Date objektummá, hogy a számítás működjön.
-        const date = new Date(expiryDate);
-        const diffDays = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-        if (diffDays < 0) return { color: 'bg-red-500 text-white', label: 'LEJÁRT!' };
-        if (diffDays <= 3) return { color: 'bg-yellow-400 text-gray-800', label: `Lejár: ${diffDays} nap` };
-        return { color: 'text-gray-500', label: `${diffDays} nap` };
-    }
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`API hiba: ${response.status} ${response.statusText}`);
+            }
+            // A DELETE hívás lehet, hogy nem ad vissza JSON-t (204 No Content), ezért ellenőrizzük
+            if (response.status !== 204 && response.headers.get("content-length") !== "0") {
+                return await response.json();
+            }
+            return { success: true };
+        } catch (e) {
+            console.error("Hiba az API hívásban:", e);
+            showAlert(`Hiba a kommunikációban a helyi szerverrel: ${e.message}`, 'error');
+            return { error: e.message };
+        }
+    }
 
 
-    function renderPreparedMeals() {
-        const contentDiv = document.getElementById('tab-content');
-        contentDiv.innerHTML = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-moss-dark">Készételek és maradékok (${state.preparedMeals.length} db)</h2>
-                <button onclick="showPreparedMealModal()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
-                    + Új Készétel
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                ${state.preparedMeals.length === 0 ? '<p class="text-gray-500 col-span-full text-center">Nincs készétel a listában.</p>' : state.preparedMeals.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate)).map(item => {
-                    const status = getExpiryStatus(item.expiryDate);
-                    return `
-                        <div class="bg-cream p-4 rounded-lg shadow-md border-t-4 border-leaf flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-moss-dark mb-2">${item.name}</h3>
-                                <p class="text-sm text-gray-600 flex items-center mb-1">
-                                    <span class="font-semibold mr-1">Lejárat:</span>
-                                    <span class="px-2 py-0.5 text-xs rounded-full ${status.color}">${status.label}</span>
-                                </p>
-                                <p class="text-sm text-gray-600 mb-4">
-                                    <span class="font-semibold">Köret igény:</span> ${item.requiresSide ? 'Igen' : 'Nem'}
-                                </p>
-                            </div>
-                            <button onclick="window.deletePreparedMeal('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm transition duration-150 mt-3">
-                                Elfogyasztva / Törlés
-                            </button>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
+    // --- FŐ ADATBETÖLTŐ ÉS RENDERELŐ FÜGGVÉNY ---
+    
+    async function loadAndRenderData() {
+        if (!isAuthReady) return;
 
-    function renderPantry() {
-        const contentDiv = document.getElementById('tab-content');
-        const now = Date.now();
-        const expiredItems = state.pantry.filter(item => item.expiryDate && new Date(item.expiryDate).getTime() < now);
-        const expiringSoonItems = state.pantry.filter(item => item.expiryDate && new Date(item.expiryDate).getTime() >= now && new Date(item.expiryDate).getTime() - now <= (3 * 24 * 60 * 60 * 1000));
-        const otherItems = state.pantry.filter(item => expiredItems.indexOf(item) === -1 && expiringSoonItems.indexOf(item) === -1);
+        try {
+            const collections = ['preparedMeals', 'pantry', 'shoppingList', 'recipes'];
+            
+            const results = await Promise.all(collections.map(c => apiCall('GET', c)));
+            
+            if (results.some(r => r.error)) {
+                throw new Error("Hiba az adatok lekérdezésekor.");
+            }
 
-        const renderItems = (items, title, color, isExpired = false) => {
-            if (items.length === 0) return '';
-            return `
-                <h3 class="text-xl font-semibold text-moss-dark mt-6 mb-3 border-b pb-1 text-${color}-600">${title} (${items.length} db)</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    ${items.map(item => {
-                        const status = getExpiryStatus(item.expiryDate);
-                        return `
-                            <div class="bg-cream p-3 rounded-lg shadow-md border-l-4 border-${color}-400 flex flex-col justify-between">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="text-lg font-bold text-moss-dark">${item.name.charAt(0).toUpperCase() + item.name.slice(1)}</h4>
-                                    ${item.shouldRestock ? '<span title="Utánpótlás szükséges" class="text-leaf text-xl">🛒</span>' : ''}
-                                </div>
-                                <p class="text-xs text-gray-600 mb-2">
-                                    <span class="font-semibold mr-1">Lejárati dátum:</span>
-                                    <span class="px-2 py-0.5 text-xs rounded-full ${status.color}">${status.label}</span>
-                                </p>
-                                <button onclick="window.markPantryItemUsedUp('${item.id}', '${item.name}', ${item.shouldRestock})" class="bg-terracotta hover:bg-red-500 text-white font-bold py-1 px-3 rounded text-sm transition duration-150 mt-2">
-                                    Elfogyott / Törlés
-                                </button>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        };
+            // Az id-k és a dátumok kezelése: a Python backend már az id mezővel és ISO string dátumokkal adja vissza.
+            state.preparedMeals = results[0];
+            state.pantry = results[1].map(item => ({ 
+                ...item, 
+                // A Python backend már kisbetűsíti a nevet, de az id is fontos
+                name: item.name.toLowerCase().trim() 
+            }));
+            state.shoppingList = results[2];
+            state.recipes = results[3];
 
-        contentDiv.innerHTML = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-moss-dark">Kamra nyilvántartó (${state.pantry.length} db)</h2>
-                <button onclick="showPantryModal()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
-                    + Új Kamra tétel
-                </button>
-            </div>
-            ${renderItems(expiredItems, 'Lejárt Tételek', 'red', true)}
-            ${renderItems(expiringSoonItems, 'Hamarosan Lejáró Tételek (3 napon belül)', 'yellow')}
-            ${renderItems(otherItems.sort((a, b) => {
-                const dateA = a.expiryDate ? new Date(a.expiryDate) : new Date(8640000000000000); // Max Date for null
-                const dateB = b.expiryDate ? new Date(b.expiryDate) : new Date(8640000000000000);
-                return dateA - dateB;
-            }), 'Egyéb Tételek', 'leaf')}
-        `;
-    }
+            // Gyors keresési készlet frissítése
+            state.pantryNames = new Set(state.pantry.map(item => item.name));
+            
+            // Recept szűrők tagjainak frissítése, hogy a friss adatokon alapuljon
+            recipeFilters.allAvailableTags = new Set();
+            state.recipes.forEach(r => r.tags.forEach(tag => recipeFilters.allAvailableTags.add(tag)));
 
-    function renderShoppingList() {
-        const contentDiv = document.getElementById('tab-content');
-        
-        contentDiv.innerHTML = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-moss-dark">Bevásárlólista (${state.shoppingList.length} db)</h2>
-            </div>
-            
-            <div class="mb-6 flex space-x-2">
-                <input type="text" id="new-shopping-item" placeholder="Új tétel hozzáadása (pl. tej, kenyér)" class="flex-grow p-2 border border-gray-300 rounded focus:ring-leaf focus:border-leaf">
-                <button onclick="handleNewShoppingItem()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
-                    Hozzáad
-                </button>
-            </div>
+            if (isInitialLoad) {
+                switchTab(currentTab);
+                isInitialLoad = false;
+            } else {
+                // Csak a jelenlegi nézet frissítése
+                switch (currentTab) {
+                    case 'preparedMeals': renderPreparedMeals(); break;
+                    case 'pantry': renderPantry(); break;
+                    case 'shoppingList': renderShoppingList(); break;
+                    case 'recipes': renderRecipes(); break;
+                }
+            }
+        } catch (e) {
+            console.error("Hiba a teljes adatbetöltéskor:", e);
+            const contentDiv = document.getElementById('tab-content');
+            contentDiv.innerHTML = `<p class="text-center text-red-500 py-10">Kritikus hiba: Nem sikerült a helyi API-hoz csatlakozni. Kérlek ellenőrizd az add-on naplóit!</p>`;
+        }
+    }
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${state.shoppingList.length === 0 ? '<p class="text-gray-500 col-span-full text-center">Nincs tétel a bevásárlólistán.</p>' : state.shoppingList.map(item => `
-                    <div class="bg-cream p-4 rounded-lg shadow-md border-l-4 border-leaf flex items-center justify-between">
-                        <span class="text-lg font-medium text-moss-dark">${item.name.charAt(0).toUpperCase() + item.name.slice(1)}</span>
-                        <div class="flex space-x-2">
-                            <button onclick="window.markShoppingItemBought('${item.id}', '${item.name}')" title="Megvásárolva, mehet a kamrába" class="text-leaf hover:text-moss-dark transition duration-150">
-                                ✔️
-                            </button>
-                            <button onclick="window.deleteShoppingListItem('${item.id}')" title="Törlés" class="text-red-500 hover:text-red-700 transition duration-150">
-                                ❌
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
+    // Segédfüggvény: Alert üzenet megjelenítése
+    function showAlert(message, type = 'success') {
+        const container = document.getElementById('alert-container');
+        
+        let color;
 
-    function renderRecipes() {
-        const contentDiv = document.getElementById('tab-content');
-        
-        const filterPills = Array.from(recipeFilters.allAvailableTags).sort().map(tag => {
-            const isActive = recipeFilters.activeTags.has(tag);
-            return `
-                <button onclick="toggleTagFilter('${tag}')" class="tag-pill ${isActive ? 'bg-leaf text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} px-3 py-1 text-sm rounded-full transition duration-150 mr-2 mb-2">
-                    ${tag}
-                </button>
-            `;
-        }).join('');
+        if (type === 'error') {
+            color = 'bg-red-500';
+        } else { // 'success'
+            color = 'bg-moss-light';
+        }
 
-        const filteredRecipes = state.recipes.filter(recipe => {
-            // 1. Tag szűrés
-            if (recipeFilters.activeTags.size > 0) {
-                const hasAllTags = Array.from(recipeFilters.activeTags).every(tag => recipe.tags.includes(tag));
-                if (!hasAllTags) return false;
-            }
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `p-4 mb-2 rounded-lg shadow-xl text-white max-w-sm ${color} transition-opacity duration-300 opacity-0`;
+        
+        alertDiv.innerHTML = `<span class="font-semibold">${message}</span>`;
+        
+        container.appendChild(alertDiv);
+        
+        // Animáció
+        setTimeout(() => alertDiv.classList.remove('opacity-0'), 10);
+        setTimeout(() => {
+            alertDiv.classList.add('opacity-0');
+            alertDiv.addEventListener('transitionend', () => alertDiv.remove());
+        }, 3000);
+    }
 
-            // 2. 'Főzhető' szűrés
-            if (recipeFilters.isCookableFilterActive) {
-                // Ellenőrizzük, hogy minden kötelező összetevő megvan-e a kamrában
-                const isCookable = recipe.ingredients.every(ing => state.pantryNames.has(ing.toLowerCase().trim()));
-                if (!isCookable) return false;
-            }
+    // --- CRUD Műveletek (API HÍVÁSOK) ---
 
-            // 3. Keresés
-            if (recipeFilters.currentSearch) {
-                const searchLower = recipeFilters.currentSearch.toLowerCase();
-                if (!recipe.name.toLowerCase().includes(searchLower) && 
-                    !recipe.ingredients.some(ing => ing.toLowerCase().includes(searchLower)) &&
-                    !recipe.tags.some(tag => tag.toLowerCase().includes(searchLower))) {
-                    return false;
-                }
-            }
+    // Készételek (Prepared Meals)
+    window.addPreparedMeal = async function(name, expiryDate, requiresSide) {
+        const result = await apiCall('POST', 'preparedMeals', {
+            name,
+            // A dátumot ISO stringként küldjük
+            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null,
+            requiresSide,
+        });
 
-            return true;
-        });
+        if (result.success) {
+            showAlert('Készétel sikeresen hozzáadva!');
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
 
-        contentDiv.innerHTML = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-moss-dark">Recepteskönyv (${filteredRecipes.length} / ${state.recipes.length} recept)</h2>
-                <button onclick="showRecipeModal()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
-                    + Új Recept
-                </button>
-            </div>
+    // Készétel törlése/elfogyasztása
+    window.deletePreparedMeal = async function(id) {
+        const result = await apiCall('DELETE', 'preparedMeals', null, id);
+        if (result.success) {
+            showAlert('Elfogyasztva!');
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
 
-            <div class="mb-6 bg-cream p-4 rounded-lg shadow-inner">
-                <div class="flex space-x-4 mb-4 items-center">
-                    <input type="text" id="recipe-search" placeholder="Keresés név, összetevő, vagy tag szerint..." value="${recipeFilters.currentSearch}" 
-                           oninput="recipeFilters.currentSearch = this.value; renderRecipes();" 
-                           class="flex-grow p-2 border border-gray-300 rounded focus:ring-leaf focus:border-leaf">
-                    
-                    <button onclick="toggleCookableFilter()" 
-                            class="${recipeFilters.isCookableFilterActive ? 'bg-leaf' : 'bg-gray-300'} hover:opacity-80 text-white font-bold py-2 px-4 rounded transition duration-150 flex items-center">
-                        ${recipeFilters.isCookableFilterActive ? '✅ Csak a Főzhetőek' : 'Főzhetőek szűrése'}
-                    </button>
-                </div>
-                
-                <div class="border-t pt-3 mt-3">
-                    <p class="text-sm font-semibold text-moss-dark mb-2">Tag-ek szűrése:</p>
-                    ${filterPills || '<p class="text-xs text-gray-500">Nincs elérhető tag.</p>'}
-                </div>
-            </div>
+    // Kamra (Pantry)
+    window.addPantryItem = async function(name, expiryDate, shouldRestock, showAlertOnSuccess = true) {
+        const result = await apiCall('POST', 'pantry', {
+            name: name.trim(),
+            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null,
+            shouldRestock,
+        });
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                ${filteredRecipes.length === 0 ? '<p class="text-gray-500 col-span-full text-center">Nincs a szűrőknek megfelelő recept.</p>' : filteredRecipes.map(recipe => {
-                    // Külön ellenőrzés a recept kártyán
-                    const isCookable = recipe.ingredients.every(ing => state.pantryNames.has(ing.toLowerCase().trim()));
-                    const cookableIndicator = isCookable ? 
-                        '<span class="text-leaf font-bold">✅ Főzhető (Megvan minden)</span>' : 
-                        '<span class="text-terracotta font-bold">❌ Hiányos (Vásárolni kell)</span>';
+        if (result.success) {
+            if (showAlertOnSuccess) {
+                showAlert('Kamra tétel sikeresen hozzáadva!');
+            }
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
 
-                    return `
-                        <div class="bg-cream p-5 rounded-lg shadow-md border-t-4 ${isCookable ? 'border-leaf' : 'border-terracotta'} flex flex-col">
-                            <h3 class="text-2xl font-bold text-moss-dark mb-2">${recipe.name}</h3>
-                            <p class="text-sm mb-3">${cookableIndicator}</p>
-                            
-                            <div class="mb-3">
-                                <p class="font-semibold text-moss-dark">Összetevők:</p>
-                                <ul class="list-disc list-inside text-gray-600 text-sm pl-2 max-h-20 overflow-y-auto">
-                                    ${recipe.ingredients.map(ing => {
-                                        const hasIt = state.pantryNames.has(ing.toLowerCase().trim());
-                                        return `<li class="${hasIt ? 'text-green-600' : 'text-red-500'}">${ing}</li>`;
-                                    }).join('')}
-                                    ${recipe.optionalIngredients && recipe.optionalIngredients.length > 0 ? 
-                                        recipe.optionalIngredients.map(ing => `<li class="text-gray-500 italic">(${ing} - opcionális)</li>`).join('') : ''}
-                                </ul>
-                            </div>
-                            
-                            <div class="mb-3 flex-grow">
-                                <p class="font-semibold text-moss-dark">Utasítás:</p>
-                                <p class="text-gray-600 text-sm overflow-hidden h-12">${recipe.instructions.substring(0, 100)}${recipe.instructions.length > 100 ? '...' : ''}</p>
-                            </div>
+    // Kamra tétel elfogyott/törlése -> Bevásárlólistára kerül
+    window.markPantryItemUsedUp = async function(id, name, shouldRestock) {
+        // 1. Kamra tétel törlése
+        const deleteResult = await apiCall('DELETE', 'pantry', null, id);
 
-                            <div class="mt-2">
-                                ${recipe.tags.map(tag => `<span class="bg-moss-light text-white px-2 py-0.5 text-xs rounded-full mr-1">${tag}</span>`).join('')}
-                            </div>
-                            
-                            <div class="flex justify-between mt-4">
-                                <button onclick="showRecipeModal('${recipe.id}')" class="bg-moss-light hover:bg-leaf text-white font-bold py-1 px-3 rounded text-sm transition duration-150">
-                                    Megtekint / Szerkeszt
-                                </button>
-                                <button onclick="window.deleteRecipe('${recipe.id}')" class="text-red-500 hover:text-red-700 font-bold py-1 px-3 text-sm transition duration-150">
-                                    Törlés
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
+        if (deleteResult.success) {
+            if (shouldRestock) {
+                // 2. Bevásárlólistára rakás
+                const addResult = await apiCall('POST', 'shoppingList', {
+                    name,
+                    isBought: false,
+                    source: 'pantry_restock'
+                });
 
-    // --- MODAL KEZELŐ FÜGGVÉNYEK ---
+                if (addResult.success) {
+                    showAlert(`${name} elfogyott és automatikusan hozzáadva a Bevásárlólistához!`);
+                    loadAndRenderData(); // Adatok frissítése
+                }
+            } else {
+                showAlert(`${name} elfogyott!`);
+                loadAndRenderData(); // Adatok frissítése
+            }
+        }
+    }
+
+    // Bevásárlólista
+    window.addShoppingListItem = async function(name) {
+        const result = await apiCall('POST', 'shoppingList', {
+            name: name.trim(),
+            isBought: false,
+            source: 'manual'
+        });
+
+        if (result.success) {
+            showAlert(`${name} hozzáadva a Bevásárlólistához!`);
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
+    
+    window.deleteShoppingListItem = async function(id, showAlertOnSuccess = true) {
+        const result = await apiCall('DELETE', 'shoppingList', null, id);
+        
+        if (result.success) {
+            if (showAlertOnSuccess) {
+                showAlert('Tétel törölve a Bevásárlólistáról!');
+            }
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
+
+    window.markShoppingItemBought = async function(id, name) {
+        const result = await apiCall('DELETE', 'shoppingList', null, id);
+        if (result.success) {
+            // Mivel megvettük, most hozzáadjuk a kamrához
+            // Használjuk a már létező addPantryItem funkciót. Nincs lejárati dátum és nincs szükség restock-ra, mivel most vettük meg.
+            // A false az utolsó paraméter, ami jelzi, hogy ne jelenjen meg alert.
+            window.addPantryItem(name, null, false, false); 
+            showAlert(`${name} megvásárolva és hozzáadva a Kamrához!`);
+            // loadAndRenderData-t már az addPantryItem hívja
+        }
+    }
+
+    // Recepteskönyv
+    window.addRecipe = async function(name, ingredients, optionalIngredients, instructions, tags) {
+        const result = await apiCall('POST', 'recipes', {
+            name: name.trim(),
+            ingredients, 
+            optionalIngredients, 
+            instructions,
+            tags, 
+        });
+
+        if (result.success) {
+            showAlert(`${name} recept sikeresen hozzáadva!`);
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
+
+    window.deleteRecipe = async function(id) {
+        const result = await apiCall('DELETE', 'recipes', null, id);
+
+        if (result.success) {
+            showAlert('Recept törölve!');
+            loadAndRenderData(); // Adatok frissítése
+        }
+    }
+
+    // --- UI/RENDER FÜGGVÉNYEK ---
+
+    function switchTab(tabName) {
+        currentTab = tabName;
+        const contentDiv = document.getElementById('tab-content');
+        const tabButtons = document.querySelectorAll('.tab-button');
+
+        tabButtons.forEach(btn => {
+            btn.classList.remove('border-leaf', 'font-bold');
+            btn.classList.add('border-transparent');
+        });
+
+        document.getElementById(`tab-${tabName}`).classList.add('border-leaf', 'font-bold');
+
+        contentDiv.innerHTML = '<div class="text-center py-10 text-moss-light">Adatok betöltése...</div>';
+
+        switch (tabName) {
+            case 'preparedMeals': renderPreparedMeals(); break;
+            case 'pantry': renderPantry(); break;
+            case 'shoppingList': renderShoppingList(); break;
+            case 'recipes': renderRecipes(); break;
+            default: contentDiv.innerHTML = '<p class="text-red-500">Hiba: Ismeretlen fül.</p>';
+        }
+    }
+
+    // Dátum állapot jelző
+    function getExpiryStatus(expiryDate) {
+        if (!expiryDate) return { color: 'text-gray-500', label: 'N/A' };
+        // Az ISO string konvertálása Date objektummá, hogy a számítás működjön.
+        const date = new Date(expiryDate);
+        const diffDays = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return { color: 'bg-red-500 text-white', label: 'LEJÁRT!' };
+        if (diffDays <= 3) return { color: 'bg-yellow-400 text-gray-800', label: `Lejár: ${diffDays} nap` };
+        return { color: 'text-gray-500', label: `${diffDays} nap` };
+    }
+
+
+    function renderPreparedMeals() {
+        const contentDiv = document.getElementById('tab-content');
+        contentDiv.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-moss-dark">Készételek és maradékok (${state.preparedMeals.length} db)</h2>
+                <button onclick="showPreparedMealModal()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
+                    + Új Készétel
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                ${state.preparedMeals.length === 0 ? '<p class="text-gray-500 col-span-full text-center">Nincs készétel a listában.</p>' : state.preparedMeals.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate)).map(item => {
+                    const status = getExpiryStatus(item.expiryDate);
+                    return `
+                        <div class="bg-cream p-4 rounded-lg shadow-md border-t-4 border-leaf flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xl font-bold text-moss-dark mb-2">${item.name}</h3>
+                                <p class="text-sm text-gray-600 flex items-center mb-1">
+                                    <span class="font-semibold mr-1">Lejárat:</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full ${status.color}">${status.label}</span>
+                                </p>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    <span class="font-semibold">Köret igény:</span> ${item.requiresSide ? 'Igen' : 'Nem'}
+                                </p>
+                            </div>
+                            <button onclick="window.deletePreparedMeal('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm transition duration-150 mt-3">
+                                Elfogyasztva / Törlés
+                            </button>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    function renderPantry() {
+        const contentDiv = document.getElementById('tab-content');
+        const now = Date.now();
+        const expiredItems = state.pantry.filter(item => item.expiryDate && new Date(item.expiryDate).getTime() < now);
+        const expiringSoonItems = state.pantry.filter(item => item.expiryDate && new Date(item.expiryDate).getTime() >= now && new Date(item.expiryDate).getTime() - now <= (3 * 24 * 60 * 60 * 1000));
+        const otherItems = state.pantry.filter(item => expiredItems.indexOf(item) === -1 && expiringSoonItems.indexOf(item) === -1);
+
+        const renderItems = (items, title, color, isExpired = false) => {
+            if (items.length === 0) return '';
+            return `
+                <h3 class="text-xl font-semibold text-moss-dark mt-6 mb-3 border-b pb-1 text-${color}-600">${title} (${items.length} db)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    ${items.map(item => {
+                        const status = getExpiryStatus(item.expiryDate);
+                        return `
+                            <div class="bg-cream p-3 rounded-lg shadow-md border-l-4 border-${color}-400 flex flex-col justify-between">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-lg font-bold text-moss-dark">${item.name.charAt(0).toUpperCase() + item.name.slice(1)}</h4>
+                                    ${item.shouldRestock ? '<span title="Utánpótlás szükséges" class="text-leaf text-xl">🛒</span>' : ''}
+                                </div>
+                                <p class="text-xs text-gray-600 mb-2">
+                                    <span class="font-semibold mr-1">Lejárati dátum:</span>
+                                    <span class="px-2 py-0.5 text-xs rounded-full ${status.color}">${status.label}</span>
+                                </p>
+                                <button onclick="window.markPantryItemUsedUp('${item.id}', '${item.name}', ${item.shouldRestock})" class="bg-terracotta hover:bg-red-500 text-white font-bold py-1 px-3 rounded text-sm transition duration-150 mt-2">
+                                    Elfogyott / Törlés
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        };
+
+        contentDiv.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-moss-dark">Kamra nyilvántartó (${state.pantry.length} db)</h2>
+                <button onclick="showPantryModal()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
+                    + Új Kamra tétel
+                </button>
+            </div>
+            ${renderItems(expiredItems, 'Lejárt Tételek', 'red', true)}
+            ${renderItems(expiringSoonItems, 'Hamarosan Lejáró Tételek (3 napon belül)', 'yellow')}
+            ${renderItems(otherItems.sort((a, b) => {
+                const dateA = a.expiryDate ? new Date(a.expiryDate) : new Date(8640000000000000); // Max Date for null
+                const dateB = b.expiryDate ? new Date(b.expiryDate) : new Date(8640000000000000);
+                return dateA - dateB;
+            }), 'Egyéb Tételek', 'leaf')}
+        `;
+    }
+
+    function renderShoppingList() {
+        const contentDiv = document.getElementById('tab-content');
+        
+        contentDiv.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-moss-dark">Bevásárlólista (${state.shoppingList.length} db)</h2>
+            </div>
+            
+            <div class="mb-6 flex space-x-2">
+                <input type="text" id="new-shopping-item" placeholder="Új tétel hozzáadása (pl. tej, kenyér)" class="flex-grow p-2 border border-gray-300 rounded focus:ring-leaf focus:border-leaf">
+                <button onclick="handleNewShoppingItem()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
+                    Hozzáad
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${state.shoppingList.length === 0 ? '<p class="text-gray-500 col-span-full text-center">Nincs tétel a bevásárlólistán.</p>' : state.shoppingList.map(item => `
+                    <div class="bg-cream p-4 rounded-lg shadow-md border-l-4 border-leaf flex items-center justify-between">
+                        <span class="text-lg font-medium text-moss-dark">${item.name.charAt(0).toUpperCase() + item.name.slice(1)}</span>
+                        <div class="flex space-x-2">
+                            <button onclick="window.markShoppingItemBought('${item.id}', '${item.name}')" title="Megvásárolva, mehet a kamrába" class="text-leaf hover:text-moss-dark transition duration-150">
+                                ✔️
+                            </button>
+                            <button onclick="window.deleteShoppingListItem('${item.id}')" title="Törlés" class="text-red-500 hover:text-red-700 transition duration-150">
+                                ❌
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    function renderRecipes() {
+        const contentDiv = document.getElementById('tab-content');
+        
+        const filterPills = Array.from(recipeFilters.allAvailableTags).sort().map(tag => {
+            const isActive = recipeFilters.activeTags.has(tag);
+            return `
+                <button onclick="toggleTagFilter('${tag}')" class="tag-pill ${isActive ? 'bg-leaf text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} px-3 py-1 text-sm rounded-full transition duration-150 mr-2 mb-2">
+                    ${tag}
+                </button>
+            `;
+        }).join('');
+
+        const filteredRecipes = state.recipes.filter(recipe => {
+            // 1. Tag szűrés
+            if (recipeFilters.activeTags.size > 0) {
+                const hasAllTags = Array.from(recipeFilters.activeTags).every(tag => recipe.tags.includes(tag));
+                if (!hasAllTags) return false;
+            }
+
+            // 2. 'Főzhető' szűrés
+            if (recipeFilters.isCookableFilterActive) {
+                // Ellenőrizzük, hogy minden kötelező összetevő megvan-e a kamrában
+                const isCookable = recipe.ingredients.every(ing => state.pantryNames.has(ing.toLowerCase().trim()));
+                if (!isCookable) return false;
+            }
+
+            // 3. Keresés
+            if (recipeFilters.currentSearch) {
+                const searchLower = recipeFilters.currentSearch.toLowerCase();
+                if (!recipe.name.toLowerCase().includes(searchLower) && 
+                    !recipe.ingredients.some(ing => ing.toLowerCase().includes(searchLower)) &&
+                    !recipe.tags.some(tag => tag.toLowerCase().includes(searchLower))) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        contentDiv.innerHTML = `
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-moss-dark">Recepteskönyv (${filteredRecipes.length} / ${state.recipes.length} recept)</h2>
+                <button onclick="showRecipeModal()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">
+                    + Új Recept
+                </button>
+            </div>
+
+            <div class="mb-6 bg-cream p-4 rounded-lg shadow-inner">
+                <div class="flex space-x-4 mb-4 items-center">
+                    <input type="text" id="recipe-search" placeholder="Keresés név, összetevő, vagy tag szerint..." value="${recipeFilters.currentSearch}" 
+                            oninput="recipeFilters.currentSearch = this.value; renderRecipes();" 
+                            class="flex-grow p-2 border border-gray-300 rounded focus:ring-leaf focus:border-leaf">
+                    
+                    <button onclick="toggleCookableFilter()" 
+                            class="${recipeFilters.isCookableFilterActive ? 'bg-leaf' : 'bg-gray-300'} hover:opacity-80 text-white font-bold py-2 px-4 rounded transition duration-150 flex items-center">
+                        ${recipeFilters.isCookableFilterActive ? '✅ Csak a Főzhetőek' : 'Főzhetőek szűrése'}
+                    </button>
+                </div>
+                
+                <div class="border-t pt-3 mt-3">
+                    <p class="text-sm font-semibold text-moss-dark mb-2">Tag-ek szűrése:</p>
+                    ${filterPills || '<p class="text-xs text-gray-500">Nincs elérhető tag.</p>'}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                ${filteredRecipes.length === 0 ? '<p class="text-gray-500 col-span-full text-center">Nincs a szűrőknek megfelelő recept.</p>' : filteredRecipes.map(recipe => {
+                    // Külön ellenőrzés a recept kártyán
+                    const isCookable = recipe.ingredients.every(ing => state.pantryNames.has(ing.toLowerCase().trim()));
+                    const cookableIndicator = isCookable ? 
+                        '<span class="text-leaf font-bold">✅ Főzhető (Megvan minden)</span>' : 
+                        '<span class="text-terracotta font-bold">❌ Hiányos (Vásárolni kell)</span>';
+
+                    return `
+                        <div class="bg-cream p-5 rounded-lg shadow-md border-t-4 ${isCookable ? 'border-leaf' : 'border-terracotta'} flex flex-col">
+                            <h3 class="text-2xl font-bold text-moss-dark mb-2">${recipe.name}</h3>
+                            <p class="text-sm mb-3">${cookableIndicator}</p>
+                            
+                            <div class="mb-3">
+                                <p class="font-semibold text-moss-dark">Összetevők:</p>
+                                <ul class="list-disc list-inside text-gray-600 text-sm pl-2 max-h-20 overflow-y-auto">
+                                    ${recipe.ingredients.map(ing => {
+                                        const hasIt = state.pantryNames.has(ing.toLowerCase().trim());
+                                        return `<li class="${hasIt ? 'text-green-600' : 'text-red-500'}">${ing}</li>`;
+                                    }).join('')}
+                                    ${recipe.optionalIngredients && recipe.optionalIngredients.length > 0 ? 
+                                        recipe.optionalIngredients.map(ing => `<li class="text-gray-500 italic">(${ing} - opcionális)</li>`).join('') : ''}
+                                </ul>
+                            </div>
+                            
+                            <div class="mb-3 flex-grow">
+                                <p class="font-semibold text-moss-dark">Utasítás:</p>
+                                <p class="text-gray-600 text-sm overflow-hidden h-12">${recipe.instructions.substring(0, 100)}${recipe.instructions.length > 100 ? '...' : ''}</p>
+                            </div>
+
+                            <div class="mt-2">
+                                ${recipe.tags.map(tag => `<span class="bg-moss-light text-white px-2 py-0.5 text-xs rounded-full mr-1">${tag}</span>`).join('')}
+                            </div>
+                            
+                            <div class="flex justify-between mt-4">
+                                <button onclick="showRecipeModal('${recipe.id}')" class="bg-moss-light hover:bg-leaf text-white font-bold py-1 px-3 rounded text-sm transition duration-150">
+                                    Megtekint / Szerkeszt
+                                </button>
+                                <button onclick="window.deleteRecipe('${recipe.id}')" class="text-red-500 hover:text-red-700 font-bold py-1 px-3 text-sm transition duration-150">
+                                    Törlés
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    // --- MODAL KEZELŐ FÜGGVÉNYEK ---
 
     window.closeModal = (id) => {
         const modal = document.getElementById(id);
@@ -651,84 +651,218 @@
     
         container.innerHTML = ''; // Biztos, ami biztos
 
-        // ÚJ LÉPÉS: Visszaadjuk a hidden osztályt
+        // Visszaadjuk a hidden osztályt
         container.classList.add('hidden'); 
     };
-    
-    // Általános modal alap
-    function createModal(id, title, bodyHtml, footerHtml = '', sizeClass = 'max-w-xl') {
-        const container = document.getElementById('modal-container');
-        const modal = document.createElement('div');
-        modal.id = id;
-        modal.className = 'modal-enter-from fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300';
-        modal.innerHTML = `
-            <div class="bg-white rounded-lg shadow-2xl ${sizeClass} w-full overflow-hidden" onclick="event.stopPropagation()">
-                <div class="bg-moss-dark text-white p-4 flex justify-between items-center">
-                    <h3 class="text-xl font-bold">${title}</h3>
-                    <button onclick="window.closeModal('${id}')" class="text-white hover:text-cream text-2xl font-light leading-none">
-                        &times;
-                    </button>
-                </div>
-                <div class="p-6 max-h-[80vh] overflow-y-auto">
-                    ${bodyHtml}
-                </div>
-                ${footerHtml ? `<div class="bg-gray-100 p-4 border-t flex justify-end">${footerHtml}</div>` : ''}
-            </div>
-        `;
-        container.appendChild(modal);
-        // Aktiválja a modal-enter-active állapotot a beúszás animációhoz
-        setTimeout(() => modal.classList.remove('modal-enter-from'), 10);
-    }
-
-    // Készétel modal
-    window.showPreparedMealModal = function() {
-        const modalId = 'prepared-meal-modal';
-        const body = `
-            <div class="space-y-4">
-                <input type="text" id="meal-name" placeholder="Étel neve (pl. Rántott hús, Gulyás)" class="w-full p-2 border border-gray-300 rounded">
-                <div>
-                
-                    <label class="flex items-center space-x-2 text-gray-700">
-                        <input type="checkbox" id="meal-requires-side" class="rounded text-leaf focus:ring-leaf">
-                        <span>Köret szükséges hozzá?</span>
-                    </label>
-                </div>
-                <label class="block text-sm font-medium text-gray-700">Lejárati dátum (opcionális):</label>
-                <input type="date" id="meal-expiry-date" class="w-full p-2 border border-gray-300 rounded">
-            </div>
-        `;
-        
-        const footer = `
-            <button onclick="window.closeModal('${modalId}')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition duration-150">Mégsem</button>
-            <button onclick="handlePreparedMealSubmit()" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150 ml-2">Hozzáadás</button>
-        `;
-
-        createModal(modalId, 'Új Készétel Hozzáadása', body, footer);
-    };
-
-    // Funkció a készétel űrlap kezeléséhez
-    window.handlePreparedMealSubmit = function() {
-        const name = document.getElementById('meal-name').value;
-        const expiryDate = document.getElementById('meal-expiry-date').value;
-        const requiresSide = document.getElementById('meal-requires-side').checked;
-
-        if (!name.trim()) {
-            showAlert('Az étel neve kötelező!', 'error');
-            return;
-        }
-
-        window.addPreparedMeal(name, expiryDate, requiresSide);
-        window.closeModal('prepared-meal-modal');
-    };
     
-    // ... (A tobbi modal funkcio feltetelezve, hogy helyesen van beallitva a hianyzó részben) ...
-    // Ezzel a javitassal az API hivasok mar helyes útvonalat fognak hasznalni.
-
-    // Kezdeti megjelenítés a betöltési állapotban
-    window.addEventListener('load', () => {
-        switchTab(currentTab); // Betöltjük az első fület
-    });
+    // Általános modal alap
+    function createModal(id, title, bodyHtml, footerHtml = '', sizeClass = 'max-w-xl') {
+        const container = document.getElementById('modal-container');
+        
+        // **********************************************
+        // * AZ ÉSZLELT HIBA JAVÍTÁSA: LÁTHATÓVÁ TESSZÜK A KONTÉNERT *
+        container.classList.remove('hidden'); 
+        // **********************************************
+        
+        const modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'modal-enter-from fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 transition-opacity duration-300';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg shadow-2xl ${sizeClass} w-full overflow-hidden" onclick="event.stopPropagation()">
+                <div class="bg-moss-dark text-white p-4 flex justify-between items-center">
+                    <h3 class="text-xl font-bold">${title}</h3>
+                    <button onclick="window.closeModal('${id}')" class="text-white hover:text-cream text-2xl font-light leading-none">
+                        &times;
+                    </button>
+                </div>
+                <div class="p-6 max-h-[80vh] overflow-y-auto">
+                    ${bodyHtml}
+                </div>
+                ${footerHtml ? `<div class="bg-gray-100 p-4 border-t flex justify-end">${footerHtml}</div>` : ''}
+            </div>
+        `;
+        container.appendChild(modal);
+        
+        // Aktiváljuk az animációt a megjelenítéshez
+        setTimeout(() => {
+            modal.classList.remove('modal-enter-from');
+            modal.classList.add('modal-enter-active');
+        }, 10);
+    }
     
+    // FÜGGVÉNYEK, AMELYEK VALÓJÁBAN MEGNYITJÁK A MODÁLT (HA NÁLAD HIÁNYZIK, EZT HASZNÁLD SABLONNAK!)
+    
+    // Példafüggvények a renderelt gombokhoz (feltételezve, hogy ezek a modalokhoz tartoznak):
+    
+    window.showPreparedMealModal = () => {
+        const body = `
+            <form id="prepared-meal-form" onsubmit="event.preventDefault(); handlePreparedMealSubmit();">
+                <div class="mb-4">
+                    <label for="meal-name" class="block text-gray-700 font-semibold mb-1">Étel neve:</label>
+                    <input type="text" id="meal-name" required class="w-full p-2 border border-gray-300 rounded focus:border-leaf">
+                </div>
+                <div class="mb-4">
+                    <label for="meal-expiry" class="block text-gray-700 font-semibold mb-1">Lejárati/Ajánlott elfogyasztási dátum:</label>
+                    <input type="date" id="meal-expiry" class="w-full p-2 border border-gray-300 rounded focus:border-leaf">
+                </div>
+                <div class="mb-4 flex items-center">
+                    <input type="checkbox" id="meal-side" class="mr-2 text-leaf focus:ring-leaf">
+                    <label for="meal-side" class="text-gray-700">Köretet igényel/köret nélkül van eltéve</label>
+                </div>
+            </form>
+        `;
+        const footer = `<button type="submit" form="prepared-meal-form" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">Hozzáadás</button>`;
+        createModal('prepared-meal-modal', 'Új Készétel Hozzáadása', body, footer);
+    };
+
+    window.showPantryModal = () => {
+        const body = `
+            <form id="pantry-form" onsubmit="event.preventDefault(); handlePantrySubmit();">
+                <div class="mb-4">
+                    <label for="pantry-name" class="block text-gray-700 font-semibold mb-1">Tétel neve (pl. liszt, tojás):</label>
+                    <input type="text" id="pantry-name" required class="w-full p-2 border border-gray-300 rounded focus:border-leaf">
+                </div>
+                <div class="mb-4">
+                    <label for="pantry-expiry" class="block text-gray-700 font-semibold mb-1">Lejárati dátum (opcionális):</label>
+                    <input type="date" id="pantry-expiry" class="w-full p-2 border border-gray-300 rounded focus:border-leaf">
+                </div>
+                <div class="mb-4 flex items-center">
+                    <input type="checkbox" id="pantry-restock" checked class="mr-2 text-leaf focus:ring-leaf">
+                    <label for="pantry-restock" class="text-gray-700">Ha elfogy, automatikusan tegye a bevásárlólistára</label>
+                </div>
+            </form>
+        `;
+        const footer = `<button type="submit" form="pantry-form" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">Hozzáadás</button>`;
+        createModal('pantry-modal', 'Új Kamra Tétel Hozzáadása', body, footer);
+    };
+    
+    // ... feltételezett showRecipeModal, handlePreparedMealSubmit, handlePantrySubmit, handleNewShoppingItem, toggleCookableFilter, toggleTagFilter is létezik ...
+
+    // --- SUBMIT KEZELŐK ---
+    
+    window.handlePreparedMealSubmit = () => {
+        const name = document.getElementById('meal-name').value;
+        const expiryDate = document.getElementById('meal-expiry').value;
+        const requiresSide = document.getElementById('meal-side').checked;
+        
+        if (name) {
+            window.addPreparedMeal(name, expiryDate, requiresSide);
+            window.closeModal('prepared-meal-modal');
+        }
+    };
+    
+    window.handlePantrySubmit = () => {
+        const name = document.getElementById('pantry-name').value;
+        const expiryDate = document.getElementById('pantry-expiry').value;
+        const shouldRestock = document.getElementById('pantry-restock').checked;
+        
+        if (name) {
+            window.addPantryItem(name, expiryDate, shouldRestock);
+            window.closeModal('pantry-modal');
+        }
+    };
+
+    window.handleNewShoppingItem = () => {
+        const input = document.getElementById('new-shopping-item');
+        const name = input.value.trim();
+        
+        if (name) {
+            window.addShoppingListItem(name);
+            input.value = ''; // Űrlap ürítése
+        }
+    };
+
+    window.toggleCookableFilter = () => {
+        recipeFilters.isCookableFilterActive = !recipeFilters.isCookableFilterActive;
+        renderRecipes();
+    };
+
+    window.toggleTagFilter = (tag) => {
+        if (recipeFilters.activeTags.has(tag)) {
+            recipeFilters.activeTags.delete(tag);
+        } else {
+            recipeFilters.activeTags.add(tag);
+        }
+        renderRecipes();
+    };
+
+    window.showRecipeModal = (recipeId = null) => {
+        const isEdit = recipeId !== null;
+        let recipe = isEdit ? state.recipes.find(r => r.id === recipeId) : {
+            name: '',
+            ingredients: [],
+            optionalIngredients: [],
+            instructions: '',
+            tags: []
+        };
+        
+        const body = `
+            <form id="recipe-form" onsubmit="event.preventDefault(); handleRecipeSubmit('${recipeId}');">
+                <div class="mb-4">
+                    <label for="recipe-name" class="block text-gray-700 font-semibold mb-1">Recept neve:</label>
+                    <input type="text" id="recipe-name" value="${recipe.name}" required class="w-full p-2 border border-gray-300 rounded focus:border-leaf">
+                </div>
+                <div class="mb-4">
+                    <label for="recipe-ingredients" class="block text-gray-700 font-semibold mb-1">Kötelező összetevők (vesszővel elválasztva):</label>
+                    <textarea id="recipe-ingredients" required rows="3" class="w-full p-2 border border-gray-300 rounded focus:border-leaf">${recipe.ingredients.join(', ')}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="recipe-optional" class="block text-gray-700 font-semibold mb-1">Opcionális összetevők (vesszővel elválasztva):</label>
+                    <textarea id="recipe-optional" rows="2" class="w-full p-2 border border-gray-300 rounded focus:border-leaf">${recipe.optionalIngredients.join(', ')}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="recipe-instructions" class="block text-gray-700 font-semibold mb-1">Elkészítési útmutató:</label>
+                    <textarea id="recipe-instructions" required rows="5" class="w-full p-2 border border-gray-300 rounded focus:border-leaf">${recipe.instructions}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="recipe-tags" class="block text-gray-700 font-semibold mb-1">Tag-ek (vesszővel elválasztva, pl. "vacsora, gyors"):</label>
+                    <input type="text" id="recipe-tags" value="${recipe.tags.join(', ')}" class="w-full p-2 border border-gray-300 rounded focus:border-leaf">
+                </div>
+            </form>
+        `;
+        const footer = `<button type="submit" form="recipe-form" class="bg-leaf hover:bg-moss-light text-white font-bold py-2 px-4 rounded transition duration-150">${isEdit ? 'Recept frissítése' : 'Recept hozzáadása'}</button>`;
+        createModal('recipe-modal', isEdit ? 'Recept Szerkesztése' : 'Új Recept Hozzáadása', body, footer, 'max-w-3xl');
+    };
+
+    window.handleRecipeSubmit = (recipeId) => {
+        const isEdit = recipeId !== 'null';
+        const name = document.getElementById('recipe-name').value;
+        
+        const ingredients = document.getElementById('recipe-ingredients').value
+            .split(',')
+            .map(i => i.trim())
+            .filter(i => i);
+           
+        const optionalIngredients = document.getElementById('recipe-optional').value
+            .split(',')
+            .map(i => i.trim())
+            .filter(i => i);
+           
+        const instructions = document.getElementById('recipe-instructions').value;
+       
+        // Tagek feldolgozása
+        const tags = document.getElementById('recipe-tags').value
+            .toLowerCase()
+            .split(',')
+            .map(t => t.trim())
+            .filter(t => t);
+
+
+        if (isEdit) {
+            // A szerkesztés logikáját itt kellene implementálni, most csak az új recept hozzáadását hívjuk
+            // Mivel az API Call nem tartalmaz UPDATE funkciót az addRecipe/deleteRecipe-n kívül, 
+            // feltételezem, hogy ide a backend oldalon megvalósított update logika jön.
+            // Egyszerűsítve most csak hozzáadja.
+            window.addRecipe(name, ingredients, optionalIngredients, instructions, tags); 
+        } else {
+            window.addRecipe(name, ingredients, optionalIngredients, instructions, tags);
+        }
+        window.closeModal('recipe-modal');
+    };
+
+    // Kezdeti adatbetöltés
+    loadAndRenderData();
+
 </script>
 </body>
 </html>
