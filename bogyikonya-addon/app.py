@@ -1,14 +1,19 @@
 import json
-import os
+import os # Fontos az os, hogy olvassuk a környezeti változót
 import time
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request, send_from_directory
+
+# --- ÚJ INGRESS BEÁLLÍTÁS ---
+# A Home Assistant Supervisor automatikusan megadja a SUPERVISOR_INGRESS_ENTRY 
+# környezeti változót, ami a speciális útvonalat tartalmazza (pl. /ingress/).
+INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/')
 
 app = Flask(__name__)
 # A Home Assistant Supervisor automatikusan a /data mappát teszi perzisztenssé.
 DATA_FILE = "/data/app_data.json"
 
-# --- JSON fájlkezelő függvények ---
+# --- JSON fájlkezelő függvények (NEM VÁLTOZNAK) ---
 
 def load_data():
     """Adatok betöltése a perzisztens JSON fájlból."""
@@ -36,7 +41,7 @@ def save_data(data):
         print(f"Hiba az adat mentésekor: {e}")
         return False
 
-# --- Segédfüggvények a Firestore szerkezet emulálására ---
+# --- Segédfüggvények (NEM VÁLTOZNAK) ---
 
 def to_local_format(item):
     """Konvertálja az adatbázis bejegyzést a kliensoldali formátumba."""
@@ -58,14 +63,16 @@ def update_item_timestamps(item):
         item['createdAt'] = now_iso
     return item
 
-# --- API Végpontok ---
+# --- API Végpontok (MÓDOSÍTVA az Ingress útvonallal) ---
 
-@app.route('/')
+# Főoldal kiszolgálása: Ingress útvonalon keresztül
+@app.route(INGRESS_ENTRY_POINT)
 def serve_index():
-    """Főoldal kiszolgálása a www mappából."""
+    """Főoldal kiszolgálása a www mappából az Ingress útvonalon."""
     return send_from_directory('www', 'index.html')
 
-@app.route('/api/<collection_name>', methods=['GET'])
+# GET route módosítva az Ingress útvonallal
+@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['GET'])
 def get_collection(collection_name):
     """Gyűjtemény (pl. preparedMeals) tartalmának visszaadása."""
     data = load_data()
@@ -82,7 +89,8 @@ def get_collection(collection_name):
 
     return jsonify(formatted_collection)
 
-@app.route('/api/<collection_name>', methods=['POST'])
+# POST route módosítva az Ingress útvonallal
+@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['POST'])
 def add_item(collection_name):
     """Új elem hozzáadása a gyűjteményhez."""
     new_item = request.json
@@ -99,8 +107,8 @@ def add_item(collection_name):
     else:
         return jsonify({'error': 'Mentési hiba'}), 500
 
-
-@app.route('/api/<collection_name>/<item_id>', methods=['DELETE'])
+# DELETE route módosítva az Ingress útvonallal
+@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>/<item_id>', methods=['DELETE'])
 def delete_item(collection_name, item_id):
     """Elem törlése az ID alapján."""
     data = load_data()
@@ -121,4 +129,5 @@ def delete_item(collection_name, item_id):
 
 if __name__ == '__main__':
     # Home Assistant módban a 8099-es portot használjuk (ez van a config.yaml-ben)
+    # A host='0.0.0.0' beállítás már helyes az Ingresshez.
     app.run(host='0.0.0.0', port=8099)
