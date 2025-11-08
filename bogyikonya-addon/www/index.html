@@ -66,10 +66,35 @@
     
     // Az Ingress Base Path lekérése, vagy alapértelmezettként '/' használata.
     // Pl: /api/hassio_addons/bogyikonya/ingress/
-    const INGRESS_BASE_PATH = window.HASS_API_BASE_PATH || '/';
 
-    // A záró perjel eltávolítása a Base Path-ból (pl. /api/hassio_addons/bogyikonya/ingress)
-    const LOCAL_API_BASE = `${INGRESS_BASE_PATH}api`;
+        // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK (INGRESS JAVÍTVA) ---
+    
+    // 1. Megpróbáljuk használni a Python által injektált HASS_API_BASE_PATH-t
+    let ingressBasePath = window.HASS_API_BASE_PATH;
+    
+    // 2. Ha az injektált változó nincs jelen vagy üres, megpróbáljuk kitalálni az URL-ből.
+    if (!ingressBasePath || ingressBasePath === '/') {
+        // A tipikus Ingress URL formátum: /api/hassio_addons/ADDON_SLUG/ingress/
+        // VAGY az általad megadott formátum: /ADDON_ID/ingress/
+        const pathParts = window.location.pathname.split('/ingress/');
+        if (pathParts.length > 1) {
+            // A pathParts[0] tartalmazza az előző részt, pl. "/b9735126_bogyikonya"
+            // Hozzáadjuk az "ingress/" részt, hogy megkapjuk a teljes prefixet.
+            ingressBasePath = pathParts[0] + '/ingress/';
+        }
+    }
+    
+    // 3. Ha még mindig nincs prefixünk, használjuk az abszolút / címet (amikor fejlesztés alatt fut)
+    if (!ingressBasePath) {
+        ingressBasePath = '/';
+    }
+    
+    // Végleges API Base Path
+    // Pl. /b9735126_bogyikonya/ingress/api
+    const LOCAL_API_BASE = `${ingressBasePath}api`;
+
+    
+
     
 
     let userId = 'local_user'; // A felhasználó ID a lokális módban irreleváns, de megtartva a struktúra miatt
