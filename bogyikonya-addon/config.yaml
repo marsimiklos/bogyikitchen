@@ -1,5 +1,5 @@
 name: Bogyi Konyha - Konyhai Nyilvántartó
-version: "0.1.20"
+version: "0.1.21"
 slug: bogyikonya
 description: Konyhai és kamra nyilvántartó alkalmazás helyi adatokkal
 url: "https://github.com/marsimiklos/bogyikitchen"
@@ -9,15 +9,15 @@ arch:
   - armhf
 startup: application
 init: false
-ports:
-  8099/tcp: null
-webui: http://[HOST]:[PORT:8099]
 
-# --- AZ ALÁBBI SOROK A JAVÍTÁS ---
+# Ezt hagyd benne, hogy ne legyen külső portnyitás (Ingress alatt nem kell)
+ports: {}
+
+# 🔧 FONTOS RÉSZ
 ingress: true
+ingress_port: 8099
 panel_icon: mdi:food-turkey
 panel_title: Bogyi Konyha
-# ---------------------------------
 
 options: {}
 schema: {}
