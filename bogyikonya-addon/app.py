@@ -8,15 +8,20 @@ import urllib.request
 app = Flask(__name__)
 DATA_FILE = "/data/app_data.json"
 
-# --- INGRESS BEÁLLÍTÁS (Supervisor API, urllib) ---
+# --- INGRESS BEÁLLÍTÁS ---
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
 ADDON_SLUG = os.environ.get("HASSIO_ADDON") or "bogyikonya"
 
+# Hardcode fallback URL (beállítható config.yaml-ban vagy környezeti változóként)
+FALLBACK_INGRESS = os.environ.get("INGRESS_ENTRY") or "/hassio/addon/bogyikonya/"
+
 def get_ingress_url():
-    """Lekérdezi az addon Ingress URL-jét a Supervisor API-n keresztül urllib-rel."""
+    """Lekérdezi az addon Ingress URL-jét a Supervisor API-n keresztül urllib-rel.
+    Ha nincs token, fallback a hardcodeolt URL-re.
+    """
     if not SUPERVISOR_TOKEN:
-        print("[DEBUG] Supervisor token nincs beállítva, fallback /")
-        return "/"
+        print("[DEBUG] Supervisor token nincs beállítva, fallback hardcode URL")
+        return FALLBACK_INGRESS
 
     url = f"http://supervisor/addons/{ADDON_SLUG}/info"
     req = urllib.request.Request(url, headers={
@@ -31,10 +36,11 @@ def get_ingress_url():
             if ingress_url:
                 return ingress_url if ingress_url.endswith("/") else ingress_url + "/"
             else:
-                return "/"
+                print("[DEBUG] Supervisor API nem adott ingress_url-t, fallback hardcode URL")
+                return FALLBACK_INGRESS
     except Exception as e:
-        print(f"[DEBUG] Hiba az ingress_url lekérésekor: {e}")
-        return "/"
+        print(f"[DEBUG] Hiba az ingress_url lekérésekor: {e}, fallback hardcode URL")
+        return FALLBACK_INGRESS
 
 # Beállítjuk a Flask app Ingress entry point-ját
 INGRESS_ENTRY_POINT = get_ingress_url()
@@ -80,10 +86,8 @@ def update_item_timestamps(item):
     return item
 
 # --- ÚTVONALAK (INGRESS HELYESEN KEZELVE) ---
-
 @app.route(INGRESS_ENTRY_POINT)
 def serve_index():
-    """Főoldal kiszolgálása a www mappából, injektálva a JS-be a base path-t."""
     try:
         with open(os.path.join('www', 'index.html'), 'r', encoding='utf-8') as f:
             html_content = f.read()
