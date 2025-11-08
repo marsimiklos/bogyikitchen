@@ -5,7 +5,8 @@ FROM $BUILD_FROM
 RUN apk add --no-cache python3 py3-pip
 
 # Telepítjük a Flask Python web keretrendszert
-RUN pip3 install Flask
+# A --break-system-packages paraméter fixeli a "externally-managed-environment" hibát
+RUN pip3 install Flask --break-system-packages
 
 # Létrehozzuk a munka könyvtárat
 WORKDIR /app
