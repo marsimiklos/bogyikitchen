@@ -6,17 +6,14 @@ from flask import Flask, jsonify, request, send_from_directory
 
 # --- INGRESS BEÁLLÍTÁS ---
 # A Home Assistant Supervisor megadja a SUPERVISOR_INGRESS_ENTRY-t (pl. /api/hassio_addons/bogyikonya/ingress/)
-INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/')
+INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/') # Ez a változó / -re végződik
 
-# JAVÍTÁS: Kiszámoljuk az API útvonalakhoz szükséges prefixet. 
-# Ha az INGRESS_ENTRY_POINT nem csak '/', eltávolítjuk a záró perjelt, 
-# hogy az útvonal helyesen épüljön fel: <prefix>/api/...
-INGRESS_PREFIX = INGRESS_ENTRY_POINT.rstrip('/') if INGRESS_ENTRY_POINT != '/' else ''
+# A korábbi INGRESS_PREFIX logikát elhagyjuk, mert felesleges volt és hibát okozott.
 
 app = Flask(__name__)
 DATA_FILE = "/data/app_data.json"
 
-# --- JSON fájlkezelő és Segédfüggvények (VÁLTOZATLAN) ---
+# --- JSON fájlkezelő és Segédfüggvények (NEM VÁLTOZNAK) ---
 
 def load_data():
     """Adatok betöltése a perzisztens JSON fájlból."""
@@ -60,7 +57,7 @@ def update_item_timestamps(item):
 
 # --- ÚTVONALAK (INGRESS HELYESEN KEZELVE) ---
 
-# --- 1. INDEX FÁJL KISZOLGÁLÁSA (VÁLTOZATLAN) ---
+# 1. INDEX FÁJL KISZOLGÁLÁSA
 @app.route(INGRESS_ENTRY_POINT)
 def serve_index():
     """Főoldal kiszolgálása a www mappából, injektálva a JS-be a base path-t."""
@@ -69,7 +66,7 @@ def serve_index():
         with open(os.path.join('www', 'index.html'), 'r', encoding='utf-8') as f:
             html_content = f.read()
         
-        # Létrehozzuk a globális JS változót
+        # Létrehozzuk a globális JS változót (INGRESS_ENTRY_POINT végén van a perjel)
         js_injection = f'<script>window.HASS_API_BASE_PATH = "{INGRESS_ENTRY_POINT}";</script>'
         
         # Beillesztjük a </head> elé
@@ -80,16 +77,18 @@ def serve_index():
     except FileNotFoundError:
         return "Hiba: index.html fájl nem található.", 404
 
-# --- 2. STATIKUS FÁJLOK KISZOLGÁLÁSA (ÚJ) ---
-@app.route(f'{INGRESS_PREFIX}/<path:filename>')
+# 2. STATIKUS FÁJLOK KISZOLGÁLÁSA (JAVÍTVA)
+# Ez kezeli a /.../ingress/style.css és a /.../ingress/app.js hívásokat
+@app.route(f'{INGRESS_ENTRY_POINT}<path:filename>')
 def serve_static(filename):
     """Statikus fájlok (JS, CSS, képek) kiszolgálása a www mappából az Ingress prefixet használva."""
     return send_from_directory('www', filename)
 
-# --- 3. API VÉGPONTOK (INGRESS PREFIX-EL JAVÍTVA) ---
+# 3. API VÉGPONTOK (INGRESS HELYESEN BEÉPÍTVE)
 
 # GET route
-@app.route(f'{INGRESS_PREFIX}/api/<collection_name>', methods=['GET'])
+# INGRESS_ENTRY_POINT + api/collection_name lesz az útvonal
+@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['GET'])
 def get_collection(collection_name):
     data = load_data()
     collection = data.get(collection_name, [])
@@ -105,7 +104,7 @@ def get_collection(collection_name):
     return jsonify(formatted_collection)
 
 # POST route
-@app.route(f'{INGRESS_PREFIX}/api/<collection_name>', methods=['POST'])
+@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['POST'])
 def add_item(collection_name):
     new_item = request.json
     new_item = update_item_timestamps(new_item)
@@ -120,7 +119,7 @@ def add_item(collection_name):
         return jsonify({'error': 'Mentési hiba'}), 500
 
 # DELETE route
-@app.route(f'{INGRESS_PREFIX}/api/<collection_name>/<item_id>', methods=['DELETE'])
+@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>/<item_id>', methods=['DELETE'])
 def delete_item(collection_name, item_id):
     data = load_data()
     collection = data.get(collection_name, [])
