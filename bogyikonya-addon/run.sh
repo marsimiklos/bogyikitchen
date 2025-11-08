@@ -21,5 +21,8 @@ fi
 
 echo "Adatfájl ellenőrzés kész. Flask szerver indítása a 8099-es porton."
 
-# A Flask alkalmazás futtatása.
+# A Flask alkalmazás futtatása. 
+# Mivel az app.py beolvassa a host='0.0.0.0' és a port=8099 beállításokat, 
+# itt csak az alkalmazást indítjuk el.
+# Az összes Ingress környezeti változó automatikusan továbbítódik.
 python3 app.py
