@@ -1,33 +1,29 @@
 import json
-import os # Fontos az os, hogy olvassuk a környezeti változót
+import os
 import time
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request, send_from_directory
 
-# --- ÚJ INGRESS BEÁLLÍTÁS ---
-# A Home Assistant Supervisor automatikusan megadja a SUPERVISOR_INGRESS_ENTRY 
-# környezeti változót, ami a speciális útvonalat tartalmazza (pl. /ingress/).
+# --- INGRESS BEÁLLÍTÁS ---
+# A Home Assistant Supervisor megadja a SUPERVISOR_INGRESS_ENTRY-t (pl. /api/hassio_addons/bogyikonya/ingress/)
 INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/')
 
 app = Flask(__name__)
-# A Home Assistant Supervisor automatikusan a /data mappát teszi perzisztenssé.
 DATA_FILE = "/data/app_data.json"
 
-# --- JSON fájlkezelő függvények (NEM VÁLTOZNAK) ---
+# --- JSON fájlkezelő és Segédfüggvények (NEM VÁLTOZNAK) ---
 
 def load_data():
     """Adatok betöltése a perzisztens JSON fájlból."""
     try:
         with open(DATA_FILE, 'r') as f:
             data = json.load(f)
-        # Győződjünk meg róla, hogy az összes kulcs létezik
         default_data = {"preparedMeals": [], "pantry": [], "shoppingList": [], "recipes": []}
         for key in default_data:
             if key not in data:
                 data[key] = default_data[key]
         return data
     except Exception as e:
-        # A run.sh már gondoskodik a kezdeti fájlról, de fallback
         print(f"Hiba az adat betöltésekor: {e}")
         return {"preparedMeals": [], "pantry": [], "shoppingList": [], "recipes": []}
 
@@ -41,11 +37,7 @@ def save_data(data):
         print(f"Hiba az adat mentésekor: {e}")
         return False
 
-# --- Segédfüggvények (NEM VÁLTOZNAK) ---
-
 def to_local_format(item):
-    """Konvertálja az adatbázis bejegyzést a kliensoldali formátumba."""
-    # A dátumok ISO stringként tárolódnak
     if 'expiryDate' in item and item['expiryDate']:
         item['expiryDate'] = item['expiryDate']
     if 'createdAt' in item and item['createdAt']:
@@ -53,35 +45,46 @@ def to_local_format(item):
     return item
 
 def generate_id():
-    """Egyedi ID generálása a mentéshez."""
     return str(int(time.time() * 1000))
 
 def update_item_timestamps(item):
-    """Frissíti a dátumokat a mentés előtt."""
     now_iso = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     if 'createdAt' not in item:
         item['createdAt'] = now_iso
     return item
 
-# --- API Végpontok (MÓDOSÍTVA az Ingress útvonallal) ---
+# --- API Végpontok (INGRESS ÚTVONALAT HASZNÁLNAK) ---
 
-# Főoldal kiszolgálása: Ingress útvonalon keresztül
+# --- MÓDOSÍTOTT FÜGGVÉNY: INJECTÁLJUK A BASE PATH-T A HTML-BE ---
 @app.route(INGRESS_ENTRY_POINT)
 def serve_index():
-    """Főoldal kiszolgálása a www mappából az Ingress útvonalon."""
-    return send_from_directory('www', 'index.html')
+    """Főoldal kiszolgálása a www mappából, injektálva a JS-be a base path-t."""
+    try:
+        # A Home Assistant Ingress útvonalának injektálása a kliens oldali JS-nek
+        with open(os.path.join('www', 'index.html'), 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        
+        # Létrehozzuk a globális JS változót
+        js_injection = f'<script>window.HASS_API_BASE_PATH = "{INGRESS_ENTRY_POINT}";</script>'
+        
+        # Beillesztjük a </head> elé
+        modified_html = html_content.replace('</head>', js_injection + '</head>')
+        
+        return modified_html
+        
+    except FileNotFoundError:
+        return "Hiba: index.html fájl nem található.", 404
+# --- MÓDOSÍTOTT FÜGGVÉNY VÉGE ---
 
 # GET route módosítva az Ingress útvonallal
 @app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['GET'])
 def get_collection(collection_name):
-    """Gyűjtemény (pl. preparedMeals) tartalmának visszaadása."""
     data = load_data()
     collection = data.get(collection_name, [])
 
     formatted_collection = []
     for item in collection:
         formatted_item = to_local_format(item)
-        # Kamra tételnév kisbetűsítése, ha az
         if collection_name == 'pantry':
              formatted_item['name'] = formatted_item['name'].lower().strip()
         
@@ -92,10 +95,7 @@ def get_collection(collection_name):
 # POST route módosítva az Ingress útvonallal
 @app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['POST'])
 def add_item(collection_name):
-    """Új elem hozzáadása a gyűjteményhez."""
     new_item = request.json
-    
-    # Dátumok és ID hozzáadása
     new_item = update_item_timestamps(new_item)
     new_item['id'] = generate_id()
 
@@ -110,13 +110,10 @@ def add_item(collection_name):
 # DELETE route módosítva az Ingress útvonallal
 @app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>/<item_id>', methods=['DELETE'])
 def delete_item(collection_name, item_id):
-    """Elem törlése az ID alapján."""
     data = load_data()
     collection = data.get(collection_name, [])
 
     initial_length = len(collection)
-    
-    # A gyűjtemény új listája a törölt elem nélkül
     data[collection_name] = [item for item in collection if item.get('id') != item_id]
 
     if len(data[collection_name]) < initial_length:
@@ -128,6 +125,4 @@ def delete_item(collection_name, item_id):
         return jsonify({'error': 'Elem nem található'}), 404
 
 if __name__ == '__main__':
-    # Home Assistant módban a 8099-es portot használjuk (ez van a config.yaml-ben)
-    # A host='0.0.0.0' beállítás már helyes az Ingresshez.
     app.run(host='0.0.0.0', port=8099)
