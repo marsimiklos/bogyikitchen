@@ -20,4 +20,4 @@ COPY run.sh .
 RUN chmod a+x /app/run.sh
 
 # A run.sh lesz a belépési pont.
-CMD [ "/./run.sh" ]
+CMD [ "/app/run.sh" ]
