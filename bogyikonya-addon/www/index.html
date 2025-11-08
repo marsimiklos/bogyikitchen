@@ -66,7 +66,7 @@
     
     // Az Ingress Base Path lekérése, vagy alapértelmezettként '/' használata.
     // Pl: /api/hassio_addons/bogyikonya/ingress/
-    const INGRESS_BASE_PATH = window.HASS_API_BASE_PATH || '/';
+    const INGRESS_BASE_PATH = window.HASS_API_BASE_PATH || '/S';
 
     // A záró perjel eltávolítása a Base Path-ból (pl. /api/hassio_addons/bogyikonya/ingress)
     const LOCAL_API_BASE = `${INGRESS_BASE_PATH}api`;
