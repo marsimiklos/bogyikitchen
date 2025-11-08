@@ -73,10 +73,11 @@
     // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK (INGRESS KÉNYSZERÍTETT JAVÍTÁSA) ---
         
     // Injektált HASS_API_BASE_PATH vagy location.pathname fallback, mindig rögzített formátum
-    let ingressBasePath = (window.HASS_API_BASE_PATH || window.location.pathname.match(/^(.*\/ingress)/)?.[1] || '/hassio/addon/bogyikonya').replace(/\/$/, "");
 
     // API base path mindig egy perjellel kapcsolva
-    const LOCAL_API_BASE = `${ingressBasePath}/api`;
+    let LOCAL_API_BASE = window.HASS_API_BASE_PATH.replace(/\/$/, "") + "/api";
+
+
 
     
 
