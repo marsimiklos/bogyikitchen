@@ -13,7 +13,7 @@ SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
 ADDON_SLUG = os.environ.get("HASSIO_ADDON") or "bogyikonya"
 
 # Hardcode fallback URL (beállítható config.yaml-ban vagy környezeti változóként)
-FALLBACK_INGRESS = os.environ.get("INGRESS_ENTRY") or "/hassio/addon/bogyikonya/"
+FALLBACK_INGRESS = os.environ.get("INGRESS_ENTRY") or "/hassio/addon/bogyikonya"
 
 def get_ingress_url():
     """Lekérdezi az addon Ingress URL-jét a Supervisor API-n keresztül urllib-rel.
