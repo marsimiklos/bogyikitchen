@@ -72,28 +72,31 @@
     // 1. Megpróbáljuk használni a Python által injektált HASS_API_BASE_PATH-t
     // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK (INGRESS KÉNYSZERÍTETT JAVÍTÁSA) ---
         
-        let ingressBasePath = window.HASS_API_BASE_PATH;
-    
-    // 1. Kísérlet a teljes útvonal kinyerésére a böngésző URL-jéből, ha a Python injektálás hiányzik.
+    let ingressBasePath = window.HASS_API_BASE_PATH;
+
+    // Ha nincs injektálva Pythonból vagy üres, próbáljuk a location.pathname-ből kinyerni
     if (!ingressBasePath || ingressBasePath === '/') {
-        // Az aktuális elérési út (window.location.pathname) például: /b9735126_bogyikonya/ingress
-        let currentPath = window.location.pathname;
-        
-        // Megkeressük az "/ingress" végét az útvonalban.
-        const ingressIndex = currentPath.indexOf('/ingress');
-        
-        if (ingressIndex !== -1) {
-            // Kiszámolt útvonal: /b9735126_bogyikonya/ingress/
-            ingressBasePath = currentPath.substring(0, ingressIndex + '/ingress'.length) + '/';
+        const path = window.location.pathname;
+
+        // Keressük meg az "/ingress" részt és vágjuk le utána
+        const ingressMatch = path.match(/^(.*\/ingress)\/?/);
+
+        if (ingressMatch && ingressMatch[1]) {
+            // Példa: "/b9735126_bogyikonya/ingress/"
+            ingressBasePath = ingressMatch[1] + '/';
         } else {
-            // Ha nem Ingress módban fut (pl. lokális fejlesztés), marad az alapértelmezett.
+            // Ha nem Ingress-ben fut (pl. lokális fejlesztés)
             ingressBasePath = '/';
         }
     }
-    
-    // A VÉGLEGES API BASE ÚTVONAL
-    // Eredmény: /b9735126_bogyikonya/ingress/api
-    const LOCAL_API_BASE = `${ingressBasePath}api`;
+
+// Garantáltan perjellel végződjön
+if (!ingressBasePath.endsWith('/')) {
+    ingressBasePath += '/';
+}
+
+// A végső API alapútvonal (pl. "/b9735126_bogyikonya/ingress/api")
+const LOCAL_API_BASE = `${ingressBasePath}api/`;
 
     
 
