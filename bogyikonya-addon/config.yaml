@@ -1,5 +1,5 @@
 name: Bogyi Konyha - Konyhai Nyilvántartó
-version: "0.1.4"
+version: "0.1.5"
 slug: bogyikonya
 description: Konyhai és kamra nyilvántartó alkalmazás helyi adatokkal
 url: "https://github.com/marsimiklos/bogyikitchen"
@@ -15,7 +15,7 @@ webui: http://[HOST]:[PORT:8099]
 
 # --- AZ ALÁBBI SOROK A JAVÍTÁS ---
 ingress: true
-panel_icon: mdi:food-kitchen
+panel_icon: mdi:food-turkey
 panel_title: Bogyi Konyha
 # ---------------------------------
 
