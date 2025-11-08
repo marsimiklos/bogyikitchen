@@ -69,7 +69,8 @@
     const INGRESS_BASE_PATH = window.HASS_API_BASE_PATH || '/';
 
     // A záró perjel eltávolítása a Base Path-ból (pl. /api/hassio_addons/bogyikonya/ingress)
-    const INGRESS_PREFIX = INGRESS_BASE_PATH.replace(/\/$/, '');
+    const LOCAL_API_BASE = `${INGRESS_BASE_PATH}api`;
+     
 
     // A teljes API útvonal robusztus felépítése: prefix + /api. 
     // Pl: /api/hassio_addons/bogyikonya/ingress/api
