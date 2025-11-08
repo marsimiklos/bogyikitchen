@@ -8,6 +8,11 @@ from flask import Flask, jsonify, request, send_from_directory
 # A Home Assistant Supervisor megadja a SUPERVISOR_INGRESS_ENTRY-t (pl. /api/hassio_addons/bogyikonya/ingress/)
 INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/')
 
+# JAVÍTÁS: Kiszámoljuk az API útvonalakhoz szükséges prefixet. 
+# Ha az INGRESS_ENTRY_POINT nem csak '/', eltávolítjuk a záró perjelt, 
+# hogy az útvonal helyesen épüljön fel: <prefix>/api/...
+INGRESS_PREFIX = INGRESS_ENTRY_POINT.rstrip('/') if INGRESS_ENTRY_POINT != '/' else ''
+
 app = Flask(__name__)
 DATA_FILE = "/data/app_data.json"
 
@@ -76,8 +81,8 @@ def serve_index():
         return "Hiba: index.html fájl nem található.", 404
 # --- MÓDOSÍTOTT FÜGGVÉNY VÉGE ---
 
-# GET route módosítva az Ingress útvonallal
-@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['GET'])
+# GET route JAVÍTVA az Ingress prefixszel
+@app.route(f'{INGRESS_PREFIX}/api/<collection_name>', methods=['GET'])
 def get_collection(collection_name):
     data = load_data()
     collection = data.get(collection_name, [])
@@ -92,8 +97,8 @@ def get_collection(collection_name):
 
     return jsonify(formatted_collection)
 
-# POST route módosítva az Ingress útvonallal
-@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['POST'])
+# POST route JAVÍTVA az Ingress prefixszel
+@app.route(f'{INGRESS_PREFIX}/api/<collection_name>', methods=['POST'])
 def add_item(collection_name):
     new_item = request.json
     new_item = update_item_timestamps(new_item)
@@ -107,8 +112,8 @@ def add_item(collection_name):
     else:
         return jsonify({'error': 'Mentési hiba'}), 500
 
-# DELETE route módosítva az Ingress útvonallal
-@app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>/<item_id>', methods=['DELETE'])
+# DELETE route JAVÍTVA az Ingress prefixszel
+@app.route(f'{INGRESS_PREFIX}/api/<collection_name>/<item_id>', methods=['DELETE'])
 def delete_item(collection_name, item_id):
     data = load_data()
     collection = data.get(collection_name, [])
