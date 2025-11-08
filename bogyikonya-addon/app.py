@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request, send_from_directory
 
 # --- INGRESS BEÁLLÍTÁS ---
 # A Home Assistant Supervisor megadja a SUPERVISOR_INGRESS_ENTRY-t (pl. /api/hassio_addons/bogyikonya/ingress/)
-INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/') # Ez a változó / -re végződik
+INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_URL', '/') # Ez a változó / -re végződik
 
 # A korábbi INGRESS_PREFIX logikát elhagyjuk, mert felesleges volt és hibát okozott.
 
