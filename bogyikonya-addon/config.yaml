@@ -1,5 +1,5 @@
 name: Bogyi Konyha - Konyhai Nyilvántartó
-version: "0.1.24"
+version: "0.1.25"
 slug: bogyikonya
 description: Konyhai és kamra nyilvántartó alkalmazás helyi adatokkal
 url: "https://github.com/marsimiklos/bogyikitchen"
@@ -16,6 +16,7 @@ ports: {}
 # 🔧 FONTOS RÉSZ
 ingress: true
 ingress_port: 8099
+ingress_entry: "/hassio/addon/bogyikonya/"
 panel_icon: mdi:food-turkey
 panel_title: Bogyi Konyha
 host_network: false
