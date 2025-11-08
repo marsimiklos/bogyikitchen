@@ -1,0 +1,16 @@
+name: Bogyi Konyha - Konyhai Nyilvántartó
+version: "0.1.0"
+slug: bogyikonya
+description: Konyhai és kamra nyilvántartó alkalmazás helyi adatokkal
+url: "https://github.com/marsimiklos/bogyikitchen" # FRISSÍTVE!
+arch:
+  - amd64
+  - aarch64
+  - armhf
+startup: application
+init: false
+ports:
+  8099/tcp: null
+webui: http://[HOST]:[PORT:8099]
+options: {}
+schema: {}

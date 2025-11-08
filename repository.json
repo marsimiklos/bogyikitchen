@@ -1,0 +1,25 @@
+{
+  "name": "Bogyi Konyha Addons",
+  "url": "https://github.com/marsimiklos/bogyikitchen",
+  "maintainer": "marsimiklos",
+  "addons": [
+    {
+      "name": "Bogyi Konyha - Konyhai Nyilvántartó",
+      "slug": "bogyikonya",
+      "description": "Konyhai és kamra nyilvántartó alkalmazás helyi adatokkal",
+      "version": "0.1.0",
+      "arch": [
+        "amd64",
+        "aarch64",
+        "armhf"
+      ],
+      "url": "https://github.com/marsimiklos/bogyikitchen/tree/main/bogyikonya-addon",
+      "image": "ghcr.io/marsimiklos/bogyikitchen-addon/{arch}",
+      "options": {},
+      "ports": {
+        "8099/tcp": null
+      },
+      "webui": "http://[HOST]:[PORT:8099]"
+    }
+  ]
+}
