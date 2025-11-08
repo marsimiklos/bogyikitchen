@@ -16,7 +16,7 @@ INGRESS_PREFIX = INGRESS_ENTRY_POINT.rstrip('/') if INGRESS_ENTRY_POINT != '/' e
 app = Flask(__name__)
 DATA_FILE = "/data/app_data.json"
 
-# --- JSON fájlkezelő és Segédfüggvények (NEM VÁLTOZNAK) ---
+# --- JSON fájlkezelő és Segédfüggvények (VÁLTOZATLAN) ---
 
 def load_data():
     """Adatok betöltése a perzisztens JSON fájlból."""
@@ -58,9 +58,9 @@ def update_item_timestamps(item):
         item['createdAt'] = now_iso
     return item
 
-# --- API Végpontok (INGRESS ÚTVONALAT HASZNÁLNAK) ---
+# --- ÚTVONALAK (INGRESS HELYESEN KEZELVE) ---
 
-# --- MÓDOSÍTOTT FÜGGVÉNY: INJECTÁLJUK A BASE PATH-T A HTML-BE ---
+# --- 1. INDEX FÁJL KISZOLGÁLÁSA (VÁLTOZATLAN) ---
 @app.route(INGRESS_ENTRY_POINT)
 def serve_index():
     """Főoldal kiszolgálása a www mappából, injektálva a JS-be a base path-t."""
@@ -79,9 +79,16 @@ def serve_index():
         
     except FileNotFoundError:
         return "Hiba: index.html fájl nem található.", 404
-# --- MÓDOSÍTOTT FÜGGVÉNY VÉGE ---
 
-# GET route JAVÍTVA az Ingress prefixszel
+# --- 2. STATIKUS FÁJLOK KISZOLGÁLÁSA (ÚJ) ---
+@app.route(f'{INGRESS_PREFIX}/<path:filename>')
+def serve_static(filename):
+    """Statikus fájlok (JS, CSS, képek) kiszolgálása a www mappából az Ingress prefixet használva."""
+    return send_from_directory('www', filename)
+
+# --- 3. API VÉGPONTOK (INGRESS PREFIX-EL JAVÍTVA) ---
+
+# GET route
 @app.route(f'{INGRESS_PREFIX}/api/<collection_name>', methods=['GET'])
 def get_collection(collection_name):
     data = load_data()
@@ -97,7 +104,7 @@ def get_collection(collection_name):
 
     return jsonify(formatted_collection)
 
-# POST route JAVÍTVA az Ingress prefixszel
+# POST route
 @app.route(f'{INGRESS_PREFIX}/api/<collection_name>', methods=['POST'])
 def add_item(collection_name):
     new_item = request.json
@@ -112,7 +119,7 @@ def add_item(collection_name):
     else:
         return jsonify({'error': 'Mentési hiba'}), 500
 
-# DELETE route JAVÍTVA az Ingress prefixszel
+# DELETE route
 @app.route(f'{INGRESS_PREFIX}/api/<collection_name>/<item_id>', methods=['DELETE'])
 def delete_item(collection_name, item_id):
     data = load_data()
