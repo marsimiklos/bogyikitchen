@@ -72,31 +72,11 @@
     // 1. Megpróbáljuk használni a Python által injektált HASS_API_BASE_PATH-t
     // --- LOKÁLIS API ALAPBEÁLLÍTÁSOK (INGRESS KÉNYSZERÍTETT JAVÍTÁSA) ---
         
-    let ingressBasePath = window.HASS_API_BASE_PATH;
+    // Injektált HASS_API_BASE_PATH vagy location.pathname fallback, mindig rögzített formátum
+    let ingressBasePath = (window.HASS_API_BASE_PATH || window.location.pathname.match(/^(.*\/ingress)/)?.[1] || '/hassio/addon/bogyikonya').replace(/\/$/, "");
 
-    // Ha nincs injektálva Pythonból vagy üres, próbáljuk a location.pathname-ből kinyerni
-    if (!ingressBasePath || ingressBasePath === '/') {
-        const path = window.location.pathname;
-
-        // Keressük meg az "/ingress" részt és vágjuk le utána
-        const ingressMatch = path.match(/^(.*\/ingress)\/?/);
-
-        if (ingressMatch && ingressMatch[1]) {
-            // Példa: "/b9735126_bogyikonya/ingress/"
-            ingressBasePath = ingressMatch[1] + '/';
-        } else {
-            // Ha nem Ingress-ben fut (pl. lokális fejlesztés)
-            ingressBasePath = '/';
-        }
-    }
-
-// Garantáltan perjellel végződjön
-if (!ingressBasePath.endsWith('/')) {
-    ingressBasePath += '/';
-}
-
-// A végső API alapútvonal (pl. "/b9735126_bogyikonya/ingress/api")
-const LOCAL_API_BASE = `${ingressBasePath}api`;
+    // API base path mindig egy perjellel kapcsolva
+    const LOCAL_API_BASE = `${ingressBasePath}/api`;
 
     
 
