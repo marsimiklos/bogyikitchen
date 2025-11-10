@@ -398,9 +398,13 @@
         // Frissíti a gombokat, ha nem csak egy belső renderelés történik
         if (updateTabButtons) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active-tab');
+                btn.classList.remove('active-tab', 'text-white'); // Töröljük a text-white-ot is
+                // Helyreállítjuk a normál szövegszínt (ha a CSS nem tette meg)
+                btn.classList.add('text-moss-dark'); 
+
                 if (btn.dataset.tab === tab) {
-                    btn.classList.add('active-tab');
+                    btn.classList.add('active-tab', 'text-white'); // Hozzáadjuk a text-white-ot az aktívhoz
+                    btn.classList.remove('text-moss-dark');
                 }
             });
         }
