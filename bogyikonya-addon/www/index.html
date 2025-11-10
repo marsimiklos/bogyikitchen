@@ -77,6 +77,13 @@
             <button data-tab="recipes" class="tab-btn flex-1 py-3 text-sm font-semibold text-center rounded-lg transition-colors duration-200 text-moss-dark">Recepteskönyv</button>
         </nav>
 
+        <div class="text-center mb-4 -mt-2">
+            <a id="backup-link" href="#" download="mohakonyha_backup.json" 
+               class="text-sm text-gray-500 hover:text-moss-dark underline transition-colors">
+                Adatbázis Backup Letöltése (.json)
+            </a>
+        </div>
+
 
         <main id="tab-content" class="flex-grow bg-white p-4 sm:p-6 rounded-xl shadow-md overflow-y-auto">
             <p class="text-center text-gray-500 py-10">Betöltés...</p>
@@ -188,7 +195,7 @@
                     const data = await apiCall(getLocalEndpoint(collection));
                     state[collection] = data || [];
                     if (collection === 'pantry') {
-                         state.pantry = state.pantry.map(item => ({ id: item.id, ...item, name: item.name.toLowerCase().trim() }));
+                         state.pantry = state[collection].map(item => ({ id: item.id, ...item, name: item.name.toLowerCase().trim() }));
                          state.pantryNames = new Set(state.pantry.map(item => item.name)); 
                     }
                 }
@@ -698,7 +705,7 @@
         return `<div class="flex" title="Bonyolultság: ${d}/5">${stars}</div>`;
     };
 
-    // ÚJ (4. kérés): Képfeltöltés kezelő
+    // ÚJ (4. kérés): Képfeltöltés kezelő (JAVÍTOTT ÚTVONALLAL)
     window.uploadRecipeImage = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -727,8 +734,8 @@
             
             if (result.success && result.filename) {
                 filenameInput.value = result.filename;
-                // A végleges útvonal a 'www/images' mappából lesz kiszolgálva
-                preview.src = `images/${result.filename}`; 
+                // JAVÍTVA: A végleges útvonal az API-n keresztül
+                preview.src = `${LOCAL_API_BASE}/images/${result.filename}`; 
                 uploadNotice.textContent = 'Kép sikeresen feltöltve!';
                 uploadNotice.classList.remove('text-red-500');
                 uploadNotice.classList.add('text-moss-dark');
@@ -745,7 +752,7 @@
         }
     };
 
-    // ÚJ (6. kérés): Recept Részletező Modal
+    // ÚJ (6. kérés): Recept Részletező Modal (JAVÍTOTT ÚTVONALLAL)
     window.showRecipeDetailsModal = (id) => {
         const recipe = state.recipes.find(r => r.id === id);
         if (!recipe) return;
@@ -774,7 +781,8 @@
         
         // Kép placeholder
         const placeholderImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%20800%20400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23eeeeee%22%3E%3C%2Frect%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2224px%22%20fill%3D%22%23999999%22%3ENincs%20k%C3%A9p%3C%2Ftext%3E%3C%2Fsvg%3E';
-        const imgSrc = recipe.imageFilename ? `images/${recipe.imageFilename}` : placeholderImg;
+        // JAVÍTVA: A végleges útvonal az API-n keresztül
+        const imgSrc = recipe.imageFilename ? `${LOCAL_API_BASE}/images/${recipe.imageFilename}` : placeholderImg;
 
         const modalHtml = `
             <div id="recipe-details-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -924,9 +932,10 @@
         // Kép placeholder
         const placeholderImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22100%25%22%20height%3D%22100%25%22%20viewBox%3D%220%200%20800%20400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23eeeeee%22%3E%3C%2Frect%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2224px%22%20fill%3D%22%23999999%22%3ENincs%20k%C3%A9p%3C%2Ftext%3E%3C%2Fsvg%3E';
 
-        // ÚJ (6. kérés): Kártyák renderelése
+        // ÚJ (6. kérés): Kártyák renderelése (JAVÍTOTT ÚTVONALLAL)
         filteredRecipes.forEach(recipe => {
-            const imgSrc = recipe.imageFilename ? `images/${recipe.imageFilename}` : placeholderImg;
+            // JAVÍTVA: A végleges útvonal az API-n keresztül
+            const imgSrc = recipe.imageFilename ? `${LOCAL_API_BASE}/images/${recipe.imageFilename}` : placeholderImg;
 
             listDiv.innerHTML += `
                 <div onclick="window.showRecipeDetailsModal('${recipe.id}')" 
@@ -978,7 +987,7 @@
     };
 
 
-    // MÓDOSÍTVA (4. és 5. kérés): Recept bevitel modal (Globális)
+    // MÓDOSÍTVA (4. és 5. kérés): Recept bevitel modal (Globális) (JAVÍTOTT ÚTVONALLAL)
     window.showRecipeModal = (recipe = null) => {
          if (!isAuthReady) {
             showAlert('Az alkalmazás még tölt. Kérlek várj!', 'error');
@@ -990,7 +999,8 @@
         const formatList = (list) => Array.isArray(list) ? list.join(', ') : ''; 
 
         // Új mezők alapértékei
-        const imgSrc = (isEdit && recipe.imageFilename) ? `images/${recipe.imageFilename}` : '';
+        // JAVÍTVA: A végleges útvonal az API-n keresztül
+        const imgSrc = (isEdit && recipe.imageFilename) ? `${LOCAL_API_BASE}/images/${recipe.imageFilename}` : '';
         const difficultyValue = (isEdit && recipe.difficulty) ? recipe.difficulty : 1; // Alapértelmezett 1
 
         const modalHtml = `
@@ -1062,8 +1072,8 @@
     };
 
 
-    // MÓDOSÍTVA (4. és 5. kérés): Recept submit handler (Globális)
-    window.handleRecipeSubmit = (event, recipeId = '') => { 
+    // Recept submit handler (Globális)
+    window.handleRecipeSubmit = (event, recipeId = '') => { // MODOSÍTVA: recipeId
         event.preventDefault();
         const name = document.getElementById('recipe-name').value;
        
@@ -1115,6 +1125,9 @@
     async function initLocalApp() {
         const apiPath = LOCAL_API_BASE;
         document.getElementById('auth-info').textContent = `Helyi Mód (API Base: ${apiPath})`;
+       
+        // JAVÍTVA: Backup link beállítása
+        document.getElementById('backup-link').href = `${LOCAL_API_BASE}/backup`;
        
         // Adatbetöltés a helyi API-ról
         await setupLocalDataLoad();
