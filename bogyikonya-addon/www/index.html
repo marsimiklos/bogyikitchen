@@ -29,9 +29,10 @@
         }
         ::-webkit-scrollbar-track { background: var(--color-background); }
         
+        /* JAVÍTVA: Active tab színek garantálása */
         .active-tab {
             background-color: var(--color-moss-dark);
-            color: white;
+            color: white; /* Ez a lényeg! */
         }
         .tab-btn {
             color: var(--color-moss-dark);
@@ -52,6 +53,12 @@
             display: block;
             content: "";
             margin-top: 0.5em;
+        }
+
+        /* JAVÍTVA: Tag-ek hover stílusa */
+        .tag-btn-filter:hover {
+            background-color: var(--color-moss-light) !important;
+            color: white !important;
         }
     </style>
 </head>
@@ -859,8 +866,9 @@
         const tagFilterHtml = Array.from(recipeFilters.allAvailableTags).map(tag => {
             const isSelected = recipeFilters.selectedTags.has(tag);
             return `
-                <button onclick="window.toggleTagFilter('${tag}')" class="text-xs px-3 py-1 rounded-full border transition-colors duration-200 ${
-                    isSelected ? 'bg-moss-dark text-white border-moss-dark' : 'bg-white text-moss-dark border-moss-dark hover:bg-moss-light hover:text-white'
+                <button onclick="window.toggleTagFilter('${tag}')" class="text-xs px-3 py-1 rounded-full border transition-colors duration-200 tag-btn-filter ${
+                    // JAVÍTVA: A kiválasztott tag kapja a sötétzöld színt, ami felülírja a hovert
+                    isSelected ? 'bg-moss-dark text-white border-moss-dark' : 'bg-white text-moss-dark border-moss-dark'
                 }">
                     #${tag}
                 </button>
