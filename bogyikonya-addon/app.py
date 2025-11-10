@@ -6,18 +6,21 @@ from flask import Flask, jsonify, request, send_from_directory, send_file
 from werkzeug.utils import secure_filename
 
 # --- INGRESS BEÁLLÍTÁS ---
-# A Home Assistant Supervisor környezeti változója, ami elvileg a teljes útvonalat adná (de hibásan csak '/' ad)
 INGRESS_ENTRY_POINT = os.environ.get('SUPERVISOR_INGRESS_ENTRY', '/') 
-print(f"[DEBUG] Ingress entry point: {INGRESS_ENTRY_POINT}")
-# Biztosítjuk, hogy az útvonal '/' -re végződjön az útvonal-illesztéshez
 if not INGRESS_ENTRY_POINT.endswith("/"):
     INGRESS_ENTRY_POINT += "/"
 
 app = Flask(__name__)
 DATA_FILE = "/data/app_data.json"
-UPLOAD_FOLDER = os.path.join('www', 'images')
+
+# === MÓDOSÍTÁS 1. ===
+# A képeket a perzisztens /data mappába mentjük, nem a www-be
+UPLOAD_FOLDER = "/data/images" 
+# ======================
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Ezt már nem használjuk, mert az /data mappát célozzuk
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER 
 
 # --- JSON fájlkezelő és Segédfüggvények ---
 
@@ -27,7 +30,6 @@ def load_data():
         with open(DATA_FILE, 'r') as f:
             data = json.load(f)
     except Exception:
-        # Ha a fájl nem létezik, vagy üres, inicializáljuk az adatokat.
         data = {}
     default_data = {"preparedMeals": [], "pantry": [], "shoppingList": [], "recipes": []}
     for key in default_data:
@@ -39,7 +41,6 @@ def save_data(data):
     """Adatok mentése a perzisztens JSON fájlba."""
     try:
         with open(DATA_FILE, 'w') as f:
-            # A `json.dump` használata biztosítja a JSON formátumot
             json.dump(data, f, indent=4)
         return True
     except Exception as e:
@@ -47,23 +48,18 @@ def save_data(data):
         return False
 
 def to_local_format(item):
-    """Eltávolítja a Firestore-specifikus mezőket (ha lennének) és biztosítja a helyes dátumformátumot."""
-    # Mivel ez egy lokális API, itt nincs szükség bonyolult konverzióra, csak visszatérünk az eredeti elemmel.
     return item
 
 def generate_id():
-    """Egyedi azonosító generálása az időbélyeg alapján."""
     return str(int(time.time() * 1000))
 
 def update_item_timestamps(item):
-    """Létrehozási időbélyeg hozzáadása, ha hiányzik."""
     now_iso = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
     if 'createdAt' not in item:
         item['createdAt'] = now_iso
     return item
 
 def allowed_file(filename):
-    """Ellenőrzi, hogy a fájl kiterjesztése engedélyezett-e."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- ÚTVONALAK (INGRESS HELYESEN KEZELVE) ---
@@ -71,7 +67,6 @@ def allowed_file(filename):
 # 1. INDEX FÁJL KISZOLGÁLÁSA
 @app.route(INGRESS_ENTRY_POINT)
 def serve_index():
-    """Főoldal kiszolgálása a www mappából, injektálva a JS-be a base path-t."""
     try:
         with open(os.path.join('www', 'index.html'), 'r', encoding='utf-8') as f:
             html_content = f.read()
@@ -81,13 +76,28 @@ def serve_index():
     except FileNotFoundError:
         return "Hiba: index.html fájl nem található a 'www' mappában.", 404
 
-# 2. STATIKUS FÁJLOK KISZOLGÁLÁSA
+# 2. STATIKUS FÁJLOK KISZOLGÁLÁSA (CSS, JS - A www-ből)
 @app.route(f'{INGRESS_ENTRY_POINT}<path:filename>')
 def serve_static(filename):
-    """Statikus fájlok (JS, CSS, képek) kiszolgálása a www mappából az Ingress prefixet használva."""
+    # Ez a rész felel a www-ben lévő index.html, és a (potenciális) css, js fájlokért
+    # FONTOS: Ez már nem felel a feltöltött képekért!
+    if filename.startswith('api/'):
+         # Ne próbálja a statikus fájlkezelővel kiszolgálni az API hívásokat
+         return "API végpont", 404
     return send_from_directory('www', filename)
 
-# 3. API VÉGPONTOK (INGRESS HELYESEN BEÉPÍTVE)
+# === MÓDOSÍTÁS 2. ===
+# ÚJ VÉGPONT: Képek kiszolgálása a /data/images mappából
+@app.route(f'{INGRESS_ENTRY_POINT}api/images/<path:filename>')
+def serve_image(filename):
+    """Képek kiszolgálása a perzisztens /data/images mappából."""
+    try:
+        return send_from_directory(UPLOAD_FOLDER, filename)
+    except FileNotFoundError:
+        return jsonify({'error': 'Kép nem található'}), 404
+# ======================
+
+# 3. API VÉGPONTOK (ADATOK)
 
 # GET route (Adatok lekérése)
 @app.route(f'{INGRESS_ENTRY_POINT}api/<collection_name>', methods=['GET'])
@@ -155,14 +165,14 @@ def delete_item(collection_name, item_id):
 def download_backup():
     """A teljes app_data.json fájl letöltése backup célra."""
     if os.path.exists(DATA_FILE):
-        return send_file(DATA_FILE, as_attachment=True)
+        return send_file(DATA_FILE, as_attachment=True, download_name='mohakonyha_backup.json')
     else:
         return jsonify({'error': 'A mentési fájl nem található'}), 404
 
-# KÉPFELTÖLTÉS
+# KÉPFELTÖLTÉS (MÓDOSÍTVA: a UPLOAD_FOLDER-t használja)
 @app.route(f'{INGRESS_ENTRY_POINT}api/upload-image', methods=['POST'])
 def upload_image():
-    """Kép feltöltése a www/images/ mappába."""
+    """Kép feltöltése a /data/images/ mappába."""
     if 'file' not in request.files:
         return jsonify({'error': 'Nincs fájl a kérésben'}), 400
     file = request.files['file']
@@ -170,13 +180,26 @@ def upload_image():
         return jsonify({'error': 'Nincs kiválasztott fájl'}), 400
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(save_path)
-        return jsonify({'success': True, 'filename': filename}), 200
+        
+        try:
+            # Biztosítjuk, hogy a /data/images mappa létezzen
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        except Exception as e:
+            print(f"[ERROR] Nem sikerült létrehozni a mappát: {e}")
+            return jsonify({'error': 'Mappa létrehozási hiba a szerveren'}), 500
+
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
+        
+        try:
+            file.save(save_path) 
+            return jsonify({'success': True, 'filename': filename}), 200
+        except Exception as e:
+            print(f"[ERROR] Fájlmentési hiba: {e}")
+            return jsonify({'error': 'Fájlmentési hiba a szerveren'}), 500
+
     else:
         return jsonify({'error': 'Nem támogatott fájltípus'}), 400
 
 # FUTTATÁS
 if __name__ == '__main__':
-    # Home Assistant add-on környezetben futtatva a megadott porton
     app.run(host='0.0.0.0', port=8099)
